@@ -113,12 +113,35 @@
 </head>
 <body>
 
+<!-- 登录门 -->
+<div id="loginMask" style="position:fixed;inset:0;background:rgba(32,48,61,.97);z-index:9998;display:none;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:26px 22px;width:300px;max-width:88vw;text-align:center;">
+    <div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;">学员规划平台</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">请输入访问码进入</div>
+    <input id="codeInput" type="text" autocomplete="off" placeholder="访问码" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;box-sizing:border-box;font-family:inherit;">
+    <button id="codeBtn" class="btn" style="margin-top:12px;">进入</button>
+    <div id="codeErr" style="color:var(--red);font-size:12px;height:16px;margin-top:8px;"></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;">访问码由老师提供</div>
+  </div>
+</div>
+
+<!-- 老师视图：切换学员 -->
+<div class="card" id="teacherBar" style="display:none;">
+  <div style="display:flex;gap:8px;align-items:center;font-size:13px;">
+    <span style="color:var(--muted);">查看学员：</span>
+    <select id="studentSwitch" style="flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;"></select>
+  </div>
+</div>
+
 <div class="top">
   <div>
     <div class="d">王文嘉 · 距初试</div>
     <div class="num" id="countdown">--</div>
   </div>
-  <div class="badge" id="phase">--</div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+    <div class="badge" id="phase">--</div>
+    <a id="logoutBtn" style="font-size:11px;color:var(--muted);cursor:pointer;text-decoration:none;">退出登录</a>
+  </div>
 </div>
 
 <div class="card">
@@ -283,70 +306,123 @@ const WEEKS = [
     "12/19-20 初试：调作息、备齐证件文具（准考证/身份证/2B铅笔/黑笔）、提前看考场"]}
 ];
 
-// ---------- 数据 ----------
+// ---------- 数据（多学员：访问码登录 + 服务端隔离） ----------
+// 本地缓存按当前账号命名空间，避免同一设备多账号串数据
 function load(){
-  try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; }
+  const sid = (me && me.student_id) ? me.student_id : "anon";
+  try{ return JSON.parse(localStorage.getItem(KEY+"_"+sid)) || {}; }catch(e){ return {}; }
 }
-function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+function save(d){
+  const sid = (me && me.student_id) ? me.student_id : "anon";
+  localStorage.setItem(KEY+"_"+sid, JSON.stringify(d));
+}
 
-// 云端共享（档B：公开读、仅学生可改）
+// 会话（登录态）：{code, student_id, role, name, mode}
+const SKEY = "wb_session_wangwenjia_v1";
+function getSession(){ try{ return JSON.parse(localStorage.getItem(SKEY)); }catch(e){ return null; } }
+function setSession(s){ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); }
+
+// 云端共享（升级版：读走 get_my_data，写走 save_wangwenjia，均按访问码服务端隔离）
 const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyeGRvY2h0c3F4cmtwdGlxc21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTE4MDEsImV4cCI6MjEwMzQ2NzgwMX0.lUGLZAhx3N5julQHSNHxEmgTXDpEAakyjp0NQpF0YLw";
-const WRITE_PWD = "Xiang19860325!!";            // 仅学生知道的写密码
+const WRITE_PWD = "Xiang19860325!!";            // 旧写密码（数据库升级前兼容王文嘉）
 const SUPABASE_TABLE = "wangwenjia_checkins";
 const WEEKLY_TABLE = "wangwenjia_weekly";
-// 写入口改为数据库 RPC（save_wangwenjia），service_role 密钥永不出现在前端
 
-function syncToSupabase(date, rec){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
-  const num = function(s){ return (s !== "" && s != null) ? parseFloat(s) : null; };
-  const str = function(s){ return (s != null && s !== "") ? String(s) : null; };
-  const row = {
-    date: date, student: "王文嘉",
-    p1_hours: num(rec.p1 && rec.p1.hours), p1_done: !!(rec.p1 && rec.p1.done), p1_note: str(rec.p1 && rec.p1.note),
-    p2_hours: num(rec.p2 && rec.p2.hours), p2_done: !!(rec.p2 && rec.p2.done), p2_note: str(rec.p2 && rec.p2.note),
-    en_hours: num(rec.en && rec.en.hours), en_done: !!(rec.en && rec.en.done), en_note: str(rec.en && rec.en.note),
-    pol_hours: num(rec.pol && rec.pol.hours), pol_done: !!(rec.pol && rec.pol.done), pol_note: str(rec.pol && rec.pol.note),
-    images: (rec.images && rec.images.length) ? rec.images : []
+let me = null;          // 当前会话
+let FULL = null;        // 老师视图：全部学员数据 {students:{sid:{checkins,weekly}}}
+let viewSid = null;     // 老师当前查看的学员
+function READONLY(){ return !!(me && me.role === "teacher"); }
+
+function rpc(path, body){
+  return fetch(SUPABASE_URL + "/rest/v1/rpc/" + path, {
+    method: "POST",
+    headers: { "Content-Type":"application/json", "apikey": SUPABASE_ANON, "Authorization":"Bearer "+SUPABASE_ANON },
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).catch(function(e){ return {__net__:true, msg:String(e)}; });
+}
+
+// 探测后端是否已升级（verify_access 函数是否存在）
+async function probeModern(){
+  const j = await rpc("verify_access", { p_access_code:"__probe__" });
+  if(!j || j.__net__) return false;
+  if(j.code==="42883" || (j.message && /does not exist|could not find/i.test(j.message))) return false;
+  return true;   // 函数存在（返回 invalid_code 也算存在）
+}
+// 校验访问码 -> {student_id,role,name}；无效或函数缺失返回 null
+async function apiVerify(code){
+  const j = await rpc("verify_access", { p_access_code: code });
+  if(j && j.student_id) return j;
+  return null;
+}
+async function apiGetMyData(code){
+  const j = await rpc("get_my_data", { p_access_code: code });
+  if(j && (j.error || j.__net__)) return j;
+  return j;
+}
+function mapOneCheckin(r){
+  return {
+    p1:{hours:r.p1_hours, done:!!r.p1_done, note:r.p1_note||""},
+    p2:{hours:r.p2_hours, done:!!r.p2_done, note:r.p2_note||""},
+    en:{hours:r.en_hours, done:!!r.en_done, note:r.en_note||""},
+    pol:{hours:r.pol_hours, done:!!r.pol_done, note:r.pol_note||""},
+    images: Array.isArray(r.images)?r.images:[]
   };
-  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
-  const payload = D.weekly[wk] || {};
-  fetch(SUPABASE_URL + "/rest/v1/rpc/save_wangwenjia", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON },
-    body: JSON.stringify({ p_write_pwd: WRITE_PWD, p_checkin: row, p_weekly: { wk: wk, payload: payload } })
-  }).then(function(r){ return r.json(); }).then(function(j){ if(j && j.error) console.warn("sync rejected:", j.error); })
-    .catch(function(e){ console.warn("sync skip:", e); });
 }
-// 仅推周数据（模考/复盘改动时调用，不碰每日记录行）
-function syncWeeklyNow(){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
-  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
-  const payload = D.weekly[wk] || {};
-  fetch(SUPABASE_URL + "/rest/v1/rpc/save_wangwenjia", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON },
-    body: JSON.stringify({ p_write_pwd: WRITE_PWD, p_checkin: null, p_weekly: { wk: wk, payload: payload } })
-  }).catch(function(e){ console.warn("sync skip:", e); });
+function mapCloud(j){
+  const ck={}, wk={};
+  (j.checkins||[]).forEach(function(r){ ck[r.date]=mapOneCheckin(r); });
+  (j.weekly||[]).forEach(function(r){ wk[r.wk]=r.payload; });
+  return {checkins:ck, weekly:wk};
 }
 
-// 打开时从云端匿名只读拉取，实时显示最新进度（任何人开链接都看得到）
-async function fetchCloud(){
+// 登录后加载数据到 D（老师额外维护 FULL / viewSid）
+async function loadData(){
+  D = load();
+  if(!D.checkins) D.checkins={};
+  if(!D.weekly) D.weekly={};
+  if(me.mode === "modern"){
+    const j = await apiGetMyData(me.code);
+    if(j && !j.error && !j.__net__){
+      if(me.role === "teacher"){
+        FULL = {students:{}};
+        (j.checkins||[]).forEach(function(r){
+          const sid=r.student; FULL.students[sid]=FULL.students[sid]||{checkins:{},weekly:{}};
+          FULL.students[sid].checkins[r.date]=mapOneCheckin(r);
+        });
+        (j.weekly||[]).forEach(function(r){
+          const sid=r.student; FULL.students[sid]=FULL.students[sid]||{checkins:{},weekly:{}};
+          FULL.students[sid].weekly[r.wk]=r.payload;
+        });
+        const sids=Object.keys(FULL.students);
+        if(!viewSid || sids.indexOf(viewSid)<0) viewSid=sids[0];
+        D = sliceStudent(viewSid);
+        buildStudentSwitch(sids);
+      } else {
+        const m = mapCloud(j);
+        D.checkins=m.checkins; D.weekly=m.weekly;
+        save(D);
+      }
+    }
+  } else {
+    await fetchCloudLegacy();
+  }
+  renderAll();
+}
+function sliceStudent(sid){
+  const s = (FULL && FULL.students[sid]) || {checkins:{},weekly:{}};
+  return { checkins: JSON.parse(JSON.stringify(s.checkins)), weekly: JSON.parse(JSON.stringify(s.weekly)) };
+}
+
+// 兼容模式（数据库未升级前，仅王文嘉可用旧密码，无需登录）
+async function fetchCloudLegacy(){
   if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
   try{
     const cUrl = SUPABASE_URL + "/rest/v1/" + SUPABASE_TABLE + "?student=eq." + encodeURIComponent("王文嘉") + "&order=date.asc";
     const cRes = await fetch(cUrl, { headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON } });
     const rows = await cRes.json();
     const checkins = {};
-    rows.forEach(function(r){
-      checkins[r.date] = {
-        p1: { hours: r.p1_hours, done: !!r.p1_done, note: r.p1_note || "" },
-        p2: { hours: r.p2_hours, done: !!r.p2_done, note: r.p2_note || "" },
-        en: { hours: r.en_hours, done: !!r.en_done, note: r.en_note || "" },
-        pol: { hours: r.pol_hours, done: !!r.pol_done, note: r.pol_note || "" },
-        images: Array.isArray(r.images) ? r.images : []
-      };
-    });
+    rows.forEach(function(r){ checkins[r.date] = mapOneCheckin(r); });
     D.checkins = checkins;
     const wUrl = SUPABASE_URL + "/rest/v1/" + WEEKLY_TABLE + "?student=eq." + encodeURIComponent("王文嘉");
     const wRes = await fetch(wUrl, { headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON } });
@@ -355,12 +431,140 @@ async function fetchCloud(){
     wrows.forEach(function(r){ weekly[r.wk] = r.payload; });
     D.weekly = weekly;
     save(D);
-    renderAll();
   }catch(e){ console.warn("fetch skip:", e); }
 }
 
+// 写入（按访问码；老师只读返回 teacher_readonly）
+function syncToSupabase(date, rec){
+  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
+  if(READONLY()) return;
+  const num = function(s){ return (s !== "" && s != null) ? parseFloat(s) : null; };
+  const str = function(s){ return (s != null && s !== "") ? String(s) : null; };
+  const row = {
+    date: date, student: me.student_id,
+    p1_hours: num(rec.p1 && rec.p1.hours), p1_done: !!(rec.p1 && rec.p1.done), p1_note: str(rec.p1 && rec.p1.note),
+    p2_hours: num(rec.p2 && rec.p2.hours), p2_done: !!(rec.p2 && rec.p2.done), p2_note: str(rec.p2 && rec.p2.note),
+    en_hours: num(rec.en && rec.en.hours), en_done: !!(rec.en && rec.en.done), en_note: str(rec.en && rec.en.note),
+    pol_hours: num(rec.pol && rec.pol.hours), pol_done: !!(rec.pol && rec.pol.done), pol_note: str(rec.pol && rec.pol.note),
+    images: (rec.images && rec.images.length) ? rec.images : []
+  };
+  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
+  const payload = D.weekly[wk] || {};
+  const body = (me.mode === "modern")
+    ? { p_access_code: me.code, p_checkin: row, p_weekly: { wk: wk, payload: payload } }
+    : { p_write_pwd: WRITE_PWD, p_checkin: row, p_weekly: { wk: wk, payload: payload } };
+  rpc("save_wangwenjia", body).then(function(j){ if(j && j.error) console.warn("sync rejected:", j.error); });
+}
+// 仅推周数据（模考/复盘改动时调用，不碰每日记录行）
+function syncWeeklyNow(){
+  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
+  if(READONLY()) return;
+  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
+  const payload = D.weekly[wk] || {};
+  const body = (me.mode === "modern")
+    ? { p_access_code: me.code, p_checkin: null, p_weekly: { wk: wk, payload: payload } }
+    : { p_write_pwd: WRITE_PWD, p_checkin: null, p_weekly: { wk: wk, payload: payload } };
+  rpc("save_wangwenjia", body).catch(function(e){ console.warn("sync skip:", e); });
+}
+
+// ---------- 登录门 ----------
+function showLogin(){ const m=document.getElementById("loginMask"); if(m) m.style.display="flex"; const i=document.getElementById("codeInput"); if(i){ i.value=""; i.focus(); } const e=document.getElementById("codeErr"); if(e) e.textContent=""; }
+function hideLogin(){ const m=document.getElementById("loginMask"); if(m) m.style.display="none"; }
+function showLoginError(msg){ const e=document.getElementById("codeErr"); if(e) e.textContent=msg; }
+
+async function doLogin(){
+  const inp=document.getElementById("codeInput");
+  const code=(inp.value||"").trim();
+  if(!code){ showLoginError("请输入访问码"); return; }
+  const v = await apiVerify(code);     // 现代模式优先
+  if(v){
+    me={code:code, student_id:v.student_id, role:v.role, name:v.name, mode:"modern"};
+    setSession(me);
+    if(v.role==="teacher") viewSid=null;
+    await loadData(); hideLogin(); applyRoleUI();
+    return;
+  }
+  if(code === WRITE_PWD){              // 兼容模式：旧写密码即王文嘉
+    me={code:code, student_id:"王文嘉", role:"student", name:"王文嘉", mode:"legacy"};
+    setSession(me);
+    await loadData(); hideLogin(); applyRoleUI();
+    return;
+  }
+  showLoginError("访问码不正确，请向老师索取");
+}
+
+function applyRoleUI(){
+  const bar=document.getElementById("teacherBar");
+  const saveBtn=document.getElementById("saveBtn");
+  const up=document.getElementById("upInput");
+  const upZone=document.querySelector(".upload-zone");
+  const dEl=document.querySelector(".top .d");
+  if(READONLY()){
+    if(bar) bar.style.display="block";
+    if(saveBtn) saveBtn.style.display="none";
+    if(up) up.style.display="none";
+    if(upZone) upZone.style.display="none";
+  } else {
+    if(bar) bar.style.display="none";
+    if(saveBtn) saveBtn.style.display="";
+    if(up) up.style.display="";
+    if(upZone) upZone.style.display="";
+  }
+  const nm = (me && me.name) ? me.name : "学员";
+  if(dEl) dEl.textContent = nm + " · 距初试";
+  document.title = nm + " · 考研学习进度台";
+}
+function disableEditControls(){
+  document.querySelectorAll('#checkin input,#checkin textarea,#wkTasks input,#wkTasks .tk-del,#wkExtra input,#lightsReview textarea,.wk-foot button')
+    .forEach(function(el){ el.disabled=true; });
+}
+function buildStudentSwitch(sids){
+  const sel=document.getElementById("studentSwitch");
+  if(!sel) return;
+  sel.innerHTML="";
+  sids.forEach(function(s){
+    const o=document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o);
+  });
+  sel.value=viewSid;
+  sel.onchange=function(){ viewSid=this.value; D=sliceStudent(viewSid); renderAll(); };
+}
+function doLogout(){
+  setSession(null); me=null; FULL=null; viewSid=null;
+  D={checkins:{},weekly:{}};
+  showLogin();
+}
+
+// ---------- 启动 ----------
+async function boot(){
+  try{
+    const modern = await probeModern();
+    if(!modern){
+      // 数据库尚未升级：以王文嘉身份自动进入（兼容旧体验，无需登录）
+      me={code:WRITE_PWD, student_id:"王文嘉", role:"student", name:"王文嘉", mode:"legacy"};
+      await loadData(); applyRoleUI();
+      return;
+    }
+    const sess=getSession();
+    if(sess && sess.code){
+      me=sess;
+      const v=await apiVerify(me.code);
+      if(v){ await loadData(); applyRoleUI(); return; }
+      setSession(null);   // 会话失效（如码已重置）
+    }
+    me=null; showLogin();
+  }catch(e){
+    console.warn("boot error:", e);
+    me={code:WRITE_PWD, student_id:"王文嘉", role:"student", name:"王文嘉", mode:"legacy"};
+    await loadData(); applyRoleUI();
+  }
+}
+document.getElementById("codeBtn").addEventListener("click", doLogin);
+document.getElementById("codeInput").addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", doLogout);
+
 function renderAll(){
   renderTop(); renderCheckin(); renderLights(); renderTabs(); renderTasks(); renderTargets(); renderExtra(); renderPredict(); renderTimeline();
+  if(READONLY()) disableEditControls();
 }
 let D = load();
 if(!D.checkins) D.checkins = {};
@@ -523,6 +727,7 @@ function showLightbox(src){
 }
 
 document.getElementById("saveBtn").addEventListener("click", function(){
+  if(READONLY()) return;
   const rec = D.checkins[curDate] || {};
   document.querySelectorAll("#checkin .hinput").forEach(inp=>{
     const k = inp.dataset.k; rec[k] = rec[k] || {};
@@ -545,6 +750,7 @@ document.getElementById("saveBtn").addEventListener("click", function(){
 });
 
 document.getElementById("upInput").addEventListener("change", async function(e){
+  if(READONLY()) return;
   const f = e.target.files && e.target.files[0];
   if(!f) return;
   try{
@@ -902,8 +1108,7 @@ function renderTimeline(){
 
 // ---------- 初始化 ----------
 curWeekIdx = Math.max(0, weekOf(curDate));
-renderAll();
-fetchCloud();
+boot();
 </script>
 </body>
 </html>
