@@ -128,7 +128,7 @@
 </div>
 
 <div class="card">
-  <h2>今日打卡 · 目标 5h</h2>
+  <h2>今日记录 · 目标 5h</h2>
   <div id="todayDate" style="font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
   <div id="checkin"></div>
   <div class="upload-zone">
@@ -138,7 +138,7 @@
     <div class="thumbs" id="thumbs"></div>
     <div class="tip" style="margin-top:10px;text-align:left;">最多 3 张；自动压缩到 1200px 宽。翟老师与家长开同链接即可看到。</div>
   </div>
-  <button class="btn" id="saveBtn">保存今日打卡</button>
+  <button class="btn" id="saveBtn">保存今日记录</button>
   <div class="save-ok" id="saveOk"></div>
 </div>
 
@@ -146,7 +146,7 @@
   <h2>科目状态灯（本周）</h2>
   <div id="lights"></div>
   <div id="lightsReview"></div>
-  <div class="tip">■ = 已打卡　□ = 未打卡　加粗框 = 今日（每周一~日 7 格，亮一格算一天）</div>
+  <div class="tip">■ = 已记录　□ = 未记录　加粗框 = 今日（每周一~日 7 格，亮一格算一天）</div>
 </div>
 
 <div class="card">
@@ -318,7 +318,7 @@ function syncToSupabase(date, rec){
   }).then(function(r){ return r.json(); }).then(function(j){ if(j && j.error) console.warn("sync rejected:", j.error); })
     .catch(function(e){ console.warn("sync skip:", e); });
 }
-// 仅推周数据（模考/复盘改动时调用，不碰每日打卡行）
+// 仅推周数据（模考/复盘改动时调用，不碰每日记录行）
 function syncWeeklyNow(){
   if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
   const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
@@ -384,14 +384,14 @@ function renderTop(){
   document.getElementById("todayDate").textContent = "日期：" + curDate;
 }
 
-// ---------- 今日打卡 ----------
+// ---------- 今日记录 ----------
 function escHtml(s){
   return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 function escAttr(s){
   return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
-// 某科目从首次打卡到今天累计学习的小时数（跨所有日期求和）
+// 某科目从首次记录到今天累计学习的小时数（跨所有日期求和）
 function cumHours(key){
   let total = 0;
   for(const d in D.checkins){
@@ -400,7 +400,7 @@ function cumHours(key){
   }
   return total;
 }
-// 累计打卡天数（任意科目有时长或勾选即算一天）
+// 累计记录天数（任意科目有时长或勾选即算一天）
 function cumDays(){
   let n = 0;
   for(const d in D.checkins){
@@ -605,7 +605,7 @@ function renderLights(){
       const isFuture = d > todayStr;
       const isToday = d === todayStr;
       const cls = "grid-cell" + (isFuture ? " future" : (isDone ? " done" : "")) + (isToday ? " today" : "");
-      const tip = s.name + " · " + d + (isFuture ? "（未到）" : (isDone ? "（已打卡）" : "（未打卡）"));
+      const tip = s.name + " · " + d + (isFuture ? "（未到）" : (isDone ? "（已记录）" : "（未记录）"));
       return '<span class="'+cls+'" title="'+tip+'"></span>';
     }).join("");
     html += '<div class="lights-row"><span class="lights-name">'+s.name+'</span><div class="lights-grid">'+cells+'</div><span class="lights-frac">'+done+'/7</span></div>';
