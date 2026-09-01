@@ -2,908 +2,251 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>王文嘉 · 考研学习进度台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>芊芯教育 · 专注青少年成长全链路规划</title>
 <style>
   :root{
-    --paper:#F4F1EA; --ink:#20303D; --clay:#B05A33; --muted:#888780;
-    --green:#639922; --amber:#EF9F27; --red:#E24B4A; --line:#D3D1C7;
+    --ink:#0E1116;
+    --ink-2:#1B2230;
+    --blue:#1452CC;
+    --blue-2:#2E7BF0;
+    --paper:#F5F7FA;
+    --card:#FFFFFF;
+    --line:#E3E8EF;
+    --muted:#6B7585;
+    --maxw:1180px;
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  body{margin:0; font-family:-apple-system,"Microsoft YaHei",sans-serif; background:var(--paper); color:var(--ink); font-size:14px; line-height:1.6; padding:14px; max-width:720px; margin:0 auto;}
-  h1{font-size:18px; margin:0;}
-  .top{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px;}
-  .top .d{font-size:12px; color:var(--muted);}
-  .top .num{font-size:26px; font-weight:600; line-height:1.1;}
-  .badge{background:var(--clay); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px;}
-  .card{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px;}
-  .card h2{font-size:15px; margin:0 0 12px;}
-  .row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #F1EFE8;}
-  .row:last-child{border-bottom:none;}
-  .sub-name{flex:1; font-size:14px;}
-  .dot{width:10px; height:10px; border-radius:50%; flex:none;}
-  .hinput{width:64px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:14px; text-align:center;}
-  .chk{width:20px; height:20px; flex:none;}
-  .lights{display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid #F1EFE8;}
-  .lights:last-child{border-bottom:none;}
-  /* 状态灯 v2：每周 7 格日历（周一~周日），打了卡亮一格 */
-  .lights-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #F1EFE8;}
-  .lights-row:last-child{border-bottom:none;}
-  .lights-name{flex:none; width:60px; font-size:13px;}
-  .lights-grid{display:flex; gap:4px; flex:1; justify-content:flex-start;}
-  .grid-cell{width:18px; height:18px; border-radius:4px; border:1px solid var(--line); background:#fff; box-sizing:border-box;}
-  .grid-cell.done{background:var(--clay); border-color:var(--clay);}
-  .grid-cell.future{border-color:#eee; background:transparent;}
-  .grid-cell.today{outline:2px solid var(--ink); outline-offset:-1px;}
-  .lights-frac{flex:none; font-size:12px; color:var(--muted); width:34px; text-align:right; font-variant-numeric:tabular-nums;}
-  .bar{height:8px; background:#F1EFE8; border-radius:6px; overflow:hidden; margin:6px 0 2px;}
-  .bar>i{display:block; height:8px; background:var(--clay); border-radius:6px;}
-  .wk-tabs{display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:6px;}
-  .wk-tabs button{flex:none; border:1px solid var(--line); background:#fff; border-radius:16px; padding:5px 12px; font-size:13px; color:var(--ink);}
-  .wk-tabs button.on{background:var(--clay); color:#fff; border-color:var(--clay);}
-  .targets{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:4px;}
-  .targets .tg{background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:8px 10px;}
-  .targets .tg .n{font-size:12px; color:var(--muted);}
-  .targets .tg .v{font-size:20px; font-weight:700; color:var(--clay); line-height:1.1;}
-  .targets .tg.total{border-color:var(--clay); background:#fff;}
-  .sub-h{font-size:13px; font-weight:600; color:var(--ink); margin:2px 0 6px;}
-  .exam-row{display:grid; grid-template-columns:repeat(2,1fr); gap:6px;}
-  .exam-row label{display:flex; flex-direction:column; font-size:12px; color:var(--muted);}
-  .exam-row input{margin-top:3px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; font-size:14px; width:100%; box-sizing:border-box;}
-  .tl{display:flex; flex-direction:column; gap:5px; margin-top:2px;}
-  .tl .row{display:flex; align-items:center; justify-content:space-between; padding:5px 9px; border-radius:8px; background:var(--paper); border:1px solid var(--line); font-size:13px;}
-  .tl .row .nm{color:var(--ink); font-weight:500;}
-  .tl .row .meta{display:flex; align-items:center; gap:8px;}
-  .tl .row .dt{color:var(--muted); font-size:12px;}
-  .tl .row .cd{font-size:11px; padding:1px 8px; border-radius:10px; background:#eee; color:var(--muted); white-space:nowrap;}
-  .tl .row.next{border-color:var(--clay); background:#fff;}
-  .tl .row.next .cd{background:var(--clay); color:#fff;}
-  .tl .row.past{opacity:.45;}
-  .tl .row.past .cd{background:#ccc; color:#fff;}
-  .task{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #F1EFE8; font-size:13px;}
-  .task:last-child{border-bottom:none;}
-  .task input[type=checkbox]{margin:0; flex:none; width:18px; height:18px; accent-color:var(--clay);}
-  .task .tk-text{flex:1; min-width:0; border:1px solid var(--line); border-radius:6px; padding:5px 8px; font-size:13px; font-family:inherit; color:var(--ink); background:#FAF9F4;}
-  .task .tk-text:focus{outline:none; border-color:var(--clay); background:#fff;}
-  .task.done .tk-text{color:var(--muted); text-decoration:line-through;}
-  .task .tk-del{flex:none; width:24px; height:24px; border:none; background:transparent; color:var(--muted); font-size:18px; line-height:1; cursor:pointer; padding:0;}
-  .task .tk-del:hover{color:var(--red);}
-  .wk-foot{display:flex; gap:10px; margin-top:10px;}
-  .wk-foot button{flex:none; border:1px solid var(--clay); background:#fff; color:var(--clay); border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; font-family:inherit;}
-  .wk-foot button:active{background:var(--clay); color:#fff;}
-  .btn{display:block; width:100%; border:1px solid var(--clay); background:var(--clay); color:#fff; border-radius:10px; padding:12px; font-size:15px; margin-top:6px;}
-  .btn.ghost{background:#fff; color:var(--clay);}
-  .tip{font-size:12px; color:var(--muted); margin-top:10px;}
-  .save-ok{color:var(--green); font-size:13px; height:18px; margin-top:6px;}
-  /* ---- 每日笔记 + 图片上传 ---- */
-  .subj-block{padding:8px 0; border-bottom:1px solid #F1EFE8;}
-  .subj-block:last-of-type{border-bottom:none;}
-  .subj-block .row{padding:0; border-bottom:none;}
-  .sub-note{width:100%; min-height:30px; max-height:160px; margin-top:6px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px; box-sizing:border-box; resize:vertical; font-family:inherit; color:var(--ink); background:#FAF9F4; line-height:1.5;}
-  .sub-note:focus{outline:none; border-color:var(--clay); background:#fff;}
-  .sub-note::placeholder{color:var(--muted);}
-  .sub-cum{font-size:12px;color:var(--muted);margin-top:5px;text-align:right;}
-  .sub-cum b{color:var(--clay);font-size:13px;}
-  .sub-cum .t{color:var(--ink);}
-  .upload-zone{margin-top:12px; padding:14px; border:1px dashed var(--line); border-radius:10px; background:#FAF9F4; text-align:center;}
-  .up-label{font-size:13px; color:var(--muted); margin-bottom:10px;}
-  .up-btn{display:inline-block; padding:9px 22px; border:1px solid var(--clay); color:var(--clay); background:#fff; border-radius:8px; font-size:13px; cursor:pointer; user-select:none; -webkit-user-select:none;}
-  .up-btn:active{background:var(--clay); color:#fff;}
-  .thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; justify-content:flex-start;}
-  .thumb{position:relative; width:96px; height:96px; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#fff; flex:none;}
-  .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
-  .thumb .del{position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; border:none; font-size:14px; line-height:1; cursor:pointer; padding:0; font-family:inherit;}
-  /* ---- 分数预估 ---- */
-  #lightsReview .sub-note{margin-top:6px;}
-  .pr-row{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #F1EFE8;}
-  .pr-row:last-child{border-bottom:none;}
-  .pr-name{flex:none; width:64px; font-size:13px; font-weight:500;}
-  .pr-score{flex:none; width:40px; font-size:19px; font-weight:700; text-align:right; color:var(--ink); font-variant-numeric:tabular-nums;}
-  .pr-up{flex:none; width:46px; font-size:12px; color:var(--green); text-align:center;}
-  .pr-down{flex:none; width:46px; font-size:12px; color:var(--red); text-align:center;}
-  .pr-prob{flex:none; width:44px; font-size:17px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
-  .pr-tag{flex:none; width:42px; text-align:center; font-size:12px; padding:2px 0; border-radius:10px;}
-  .pr-tag.ok{background:rgba(99,153,34,.15); color:var(--green);}
-  .pr-tag.warn{background:rgba(239,159,39,.18); color:var(--amber);}
-  .pr-tag.bad{background:rgba(226,75,74,.15); color:var(--red);}
-  .pr-placeholder{flex:1; font-size:12px; color:var(--muted);}
-  .pr-empty{font-size:13px; color:var(--muted); line-height:1.7; padding:6px 0;}
-  .pr-total{border-top:2px solid var(--line); margin-top:4px; font-weight:500;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink);background:#fff;line-height:1.7;-webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:.5px}
+  .logo .mark{width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+  .logo .mark b{color:var(--blue-2)}
+  nav.links{display:flex;gap:30px;font-size:15px;color:var(--muted)}
+  nav.links a:hover{color:var(--ink)}
+  .btn-entrance{background:var(--blue);color:#fff;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;transition:.2s}
+  .btn-entrance:hover{background:var(--blue-2);transform:translateY(-1px)}
+  @media(max-width:820px){nav.links{display:none}}
+
+  .hero{background:radial-gradient(1200px 500px at 75% -10%,rgba(46,123,240,.32),transparent 60%),var(--ink);color:#fff;padding:110px 0 96px}
+  .hero .tag{display:inline-block;font-size:13px;letter-spacing:2px;color:var(--blue-2);border:1px solid rgba(46,123,240,.4);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .hero h1{font-size:46px;line-height:1.25;font-weight:700;letter-spacing:1px}
+  .hero p.sub{margin-top:20px;font-size:18px;color:#C5CDDA;max-width:700px}
+  .hero .cta{margin-top:36px;display:flex;gap:16px;flex-wrap:wrap}
+  .btn-lg{padding:14px 28px;border-radius:12px;font-size:16px;font-weight:600;transition:.2s}
+  .btn-ghost{border:1px solid rgba(255,255,255,.35);color:#fff}
+  .btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+  .btn-blue{background:var(--blue);color:#fff}
+  .btn-blue:hover{background:var(--blue-2)}
+  @media(max-width:620px){.hero h1{font-size:34px}.hero{padding:80px 0 72px}}
+
+  section.block{padding:82px 0}
+  .sec-head{text-align:center;max-width:720px;margin:0 auto 50px}
+  .sec-head .ey{color:var(--blue);font-weight:600;font-size:14px;letter-spacing:2px}
+  .sec-head h2{font-size:32px;margin-top:10px;font-weight:700}
+  .sec-head p{color:var(--muted);margin-top:14px;font-size:16px}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .grid.cols3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:880px){.grid,.grid.cols3{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 28px;transition:.2s;border-top:3px solid var(--blue)}
+  .card:hover{box-shadow:0 12px 32px rgba(20,82,204,.12);transform:translateY(-3px)}
+  .card h3{font-size:20px;margin-bottom:10px;font-weight:700}
+  .card .lead{color:var(--muted);font-size:15px;margin-bottom:14px}
+  .card ul{padding-left:0;list-style:none}
+  .card ul li{position:relative;padding-left:18px;color:var(--ink-2);font-size:14.5px;margin-bottom:6px}
+  .card ul li:before{content:"";position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+
+  .about{background:var(--paper)}
+  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  @media(max-width:880px){.about-grid{grid-template-columns:1fr}}
+  .about .ey{color:var(--blue);font-weight:600;letter-spacing:2px;font-size:14px}
+  .about h2{font-size:30px;margin:10px 0 16px}
+  .about p{color:var(--muted);margin-bottom:14px;font-size:16px}
+  .contact-card{background:var(--ink);color:#fff;border-radius:18px;padding:34px}
+  .contact-card h3{font-size:20px;margin-bottom:8px}
+  .contact-card .phone{font-size:30px;font-weight:700;color:var(--blue-2);margin:14px 0}
+  .contact-card .line{color:#C5CDDA;font-size:15px}
+
+  .cta-student{background:radial-gradient(900px 400px at 20% 0%,rgba(46,123,240,.28),transparent 60%),var(--ink);color:#fff;text-align:center;padding:84px 0}
+  .cta-student h2{font-size:32px;font-weight:700}
+  .cta-student p{color:#C5CDDA;margin:16px auto 30px;max-width:560px;font-size:16px}
+  .cta-student .btn-blue{display:inline-block;padding:15px 36px;font-size:17px}
+
+  footer{background:#07090C;color:#9AA4B2;padding:40px 0;font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  footer .f-logo{color:#fff;font-weight:700;font-size:16px}
+  footer a{color:var(--blue-2)}
 </style>
 </head>
 <body>
 
-<div class="top">
-  <div>
-    <div class="d">王文嘉 · 距初试</div>
-    <div class="num" id="countdown">--</div>
+<!-- 顶部导航 -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="logo"><span class="mark">芊<b>芯</b></span>芊芯教育</div>
+    <nav class="links">
+      <a href="#home">首页</a>
+      <a href="#high">高中业务</a>
+      <a href="#uni">大学业务</a>
+      <a href="#about">关于我们</a>
+    </nav>
+    <!-- 学员入口：指向学员规划台子界面 -->
+    <a class="btn-entrance" href="/app/wangwenjia">学员入口</a>
   </div>
-  <div class="badge" id="phase">--</div>
-</div>
+</header>
 
-<div class="card">
-  <h2>目标分数</h2>
-  <div class="targets" id="targets"></div>
-  <div class="tip">目标总分 385｜各科达标即稳。</div>
-</div>
-
-<div class="card">
-  <h2>今日打卡 · 目标 5h</h2>
-  <div id="todayDate" style="font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
-  <div id="checkin"></div>
-  <div class="upload-zone">
-    <div class="up-label">📷 今日学习笔记（拍照或选图）</div>
-    <label class="up-btn" for="upInput">+ 添加图片</label>
-    <input type="file" id="upInput" accept="image/*" capture="environment" hidden>
-    <div class="thumbs" id="thumbs"></div>
-    <div class="tip" style="margin-top:10px;text-align:left;">最多 3 张；自动压缩到 1200px 宽。翟老师与家长开同链接即可看到。</div>
+<!-- Hero -->
+<section class="hero" id="home">
+  <div class="wrap">
+    <span class="tag">青少年成长全链路规划</span>
+    <h1>从高中到就业<br>一站式护航每一个关键选择</h1>
+    <p class="sub">深耕高中与大学两大阶段，把心理疏导融进每一段关键选择，做有温度的成长陪伴。</p>
+    <div class="cta">
+      <a class="btn-lg btn-blue" href="#high">了解我们的业务</a>
+      <a class="btn-lg btn-ghost" href="/app/wangwenjia">进入学员规划台</a>
+    </div>
   </div>
-  <button class="btn" id="saveBtn">保存今日打卡</button>
-  <div class="save-ok" id="saveOk"></div>
-</div>
+</section>
 
-<div class="card">
-  <h2>科目状态灯（本周）</h2>
-  <div id="lights"></div>
-  <div id="lightsReview"></div>
-  <div class="tip">■ = 已打卡　□ = 未打卡　加粗框 = 今日（每周一~日 7 格，亮一格算一天）</div>
-</div>
-
-<div class="card">
-  <h2>周验收清单</h2>
-  <div class="wk-tabs" id="wkTabs"></div>
-  <div id="wkTasks"></div>
-  <div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0 2px;">
-    <span id="wkLabel"></span><span class="muted" id="wkPct"></span>
+<!-- 高中业务 -->
+<section class="block" id="high">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="ey">高中业务</div>
+      <h2>夯实行稳的起点</h2>
+      <p>从高一到高三，把心态疏导与升学规划放在同等重要的位置。</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>高中规划</h3>
+        <p class="lead">三年一贯的高中成长陪伴，把"想清楚"和"考出来"结合起来。</p>
+        <ul>
+          <li>一对一心理咨询辅导，缓解考前焦虑</li>
+          <li>四大生涯规划测评，认识兴趣、擅长与方向</li>
+          <li>全国院校与专业视频剖析，提前看清选项</li>
+          <li>独家高考填报公式，精准定位志愿</li>
+          <li>升学路径提前布局，让每一分更有价值</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>异地高考</h3>
+        <p class="lead">结合各省政策，为考生提前规划异地升学路径，把准备做在前面。</p>
+        <ul>
+          <li>异地高考政策适配与方案设计</li>
+          <li>学籍、户籍、报考流程全程指导</li>
+          <li>目标院校与专业组合优化</li>
+          <li>备考节奏与时间线规划</li>
+        </ul>
+      </div>
+    </div>
   </div>
-  <div class="bar"><i id="wkBar" style="width:0%"></i></div>
-  <div class="wk-foot" id="wkFoot"></div>
-  <div id="wkExtra"></div>
-</div>
+</section>
 
-<div class="card">
-  <h2>分数预估（学习曲线模型）</h2>
-  <div id="predict"></div>
-  <div class="tip">预估成绩仅供参考，实际以考场发挥为准。</div>
-</div>
+<!-- 大学业务 -->
+<section class="block" id="uni" style="background:var(--paper)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="ey">大学业务</div>
+      <h2>大四出路的闭环</h2>
+      <p>大学四年全程陪跑，大四毕业时多条出路并行规划。</p>
+    </div>
+    <div class="grid cols3">
+      <div class="card">
+        <h3>考研陪跑</h3>
+        <p class="lead">笔试面试全程陪跑，规划前置、节奏清晰。</p>
+        <ul>
+          <li>择校择专业定位</li>
+          <li>全年复习节奏与监督</li>
+          <li>笔试各科重点突破</li>
+          <li>复试调剂全程指导</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>大学生陪跑</h3>
+        <p class="lead">大学四年全程规划与陪伴，是考研、保研、留学、就业的"蓄水池"。</p>
+        <ul>
+          <li>大一到大四学业规划</li>
+          <li>实习、实践、背景提升</li>
+          <li>阶段性目标拆解与复盘</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>留学</h3>
+        <p class="lead">高端定制、背景提升与归国服务，覆盖港澳、东南亚等热门方向。</p>
+        <ul>
+          <li>国家与院校选校方案</li>
+          <li>语言与标化考试规划</li>
+          <li>背景提升与文书指导</li>
+          <li>签证与归国衔接</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>保研陪跑</h3>
+        <p class="lead">绩点、科研、推荐三位一体的系统化前置规划。</p>
+        <ul>
+          <li>保研目标定位与院校选择</li>
+          <li>绩点提升与科研规划</li>
+          <li>夏令营、预推免全程辅导</li>
+          <li>材料准备与面试指导</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>体制内就业</h3>
+        <p class="lead">面向考公、考编与选调的笔试面试全程陪跑。</p>
+        <ul>
+          <li>岗位选择与报考策略</li>
+          <li>行测、申论专项突破</li>
+          <li>面试结构化训练</li>
+          <li>备考节奏与心理调适</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="card">
-  <h2>关键时间节点</h2>
-  <div class="tl" id="timeline"></div>
-  <div class="tip">前 5 项为硬截止，错过无法补；最临近的一条自动高亮。</div>
-</div>
+<!-- 关于我们 -->
+<section class="block about" id="about">
+  <div class="wrap about-grid">
+    <div>
+      <div class="ey">关于我们</div>
+      <h2 style="margin-top:10px">专注青少年成长全链路规划</h2>
+      <p>河南芊芯教育科技有限责任公司，定位为一站式护航从高中到就业的规划服务机构，以"心理 + 规划"为特色，做有温度的成长陪伴。</p>
+      <p>我们提供高中三年规划、考研保研、留学与就业等多条产品线，与国内头部机构深度合作，帮助学生把每一个关键选择走得踏实。</p>
+    </div>
+    <div class="contact-card">
+      <h3>联系我们</h3>
+      <div class="line">河南芊芯教育科技有限责任公司</div>
+      <div class="phone">135 2556 1776</div>
+      <div class="line">翟老师 · 微信 / 电话同号</div>
+    </div>
+  </div>
+</section>
 
-<script>
-const KEY = "wb_study_wangwenjia_v1";
-const EXAM = "2026-12-19";
-const SUBJECTS = [
-  {key:"p1", name:"专业课一"},
-  {key:"p2", name:"专业课二"},
-  {key:"en", name:"英语"},
-  {key:"pol", name:"政治"}
-];
-// 目标分数（来自规划方案 1.4：总分 385）
-const TARGETS = { p1:125, p2:125, en:65, pol:70, total:385 };
-// 关键时间节点（2027考研，日期为常规预计值；前5项硬截止）
-const MILESTONES = [
-  { name:"预报名",     date:"2026-09-27", label:"9/24–27" },
-  { name:"正式报名",   date:"2026-10-25", label:"10/8–25" },
-  { name:"网上确认",   date:"2026-11-10", label:"11月上旬" },
-  { name:"打印准考证", date:"2026-12-10", label:"12/10起" },
-  { name:"初试",       date:"2026-12-19", label:"12/19–20" },
-  { name:"初试出分",   date:"2027-02-15", label:"2月中下旬" },
-  { name:"国家线",     date:"2027-03-15", label:"3月中旬" },
-  { name:"复试",       date:"2027-03-25", label:"3–4月" }
-];
-const PHASES = [
-  {name:"校准周", start:"2026-08-31", end:"2026-09-06"},
-  {name:"筑基期", start:"2026-09-07", end:"2026-10-15"},
-  {name:"强化期", start:"2026-10-16", end:"2026-11-30"},
-  {name:"收口期", start:"2026-12-01", end:"2026-12-20"}
-];
-// 14 周计划（8/31 起）；每周 base = 可达成的小目标底稿，打开当周自动带出，学生可改/删/加
-const WEEKS = [
-  {id:"W1", label:"W1 校准 8/31-9/6", base:[
-    "专业课一：资料清点 + 定好每日计划",
-    "专业课一：做 2026 真题裸测摸底（先写，不管对错）",
-    "做一次 4 科摸底（专一·专二·英语·政治 各裸测 1 次，摸清当前真实水平）",
-    "专业课二：资料清点 + 列出名解框架",
-    "英语：装好单词 APP（墨墨/不背），定华研书计划",
-    "政治：选定老师（徐涛/肖秀荣），购齐资料"]},
-  {id:"W2", label:"W2 筑基 9/7-9/13", base:[
-    "专业课一：花猫笔记 CH1-2 通读 + 画导图",
-    "专业课二：整理名解 30 条",
-    "英语：华研阅读 1 套（裸做）+ 单词每日",
-    "政治：徐涛马原强化班 3 节 + 1000 题一刷"]},
-  {id:"W3", label:"W3 筑基 9/14-9/20", base:[
-    "专业课一：花猫笔记 CH3-4 通读 + 导图",
-    "专业课二：名解累计到 60 条",
-    "英语：华研阅读 2 套 + 长难句拆解",
-    "政治：马原完 + 史纲启动"]},
-  {id:"W4", label:"W4 筑基 9/21-9/27", base:[
-    "专业课一：花猫笔记 CH5-6",
-    "专业课二：业务二框架梳理",
-    "英语：华研阅读 2 套",
-    "政治：史纲完"]},
-  {id:"W5", label:"W5 国庆 9/28-10/4", base:[
-    "专业课一：业务一二轮起步",
-    "专业课二：热点专题起步",
-    "英语：华研阅读 2 套",
-    "政治：毛中特启动"]},
-  {id:"W6", label:"W6 筑基尾 10/5-10/11", base:[
-    "专业课一：CH 全过完 + 导图收口",
-    "专业课二：名解完 + 框架收口",
-    "英语：阅读 2 套 + 作文模板初看",
-    "政治：毛中特完"]},
-  {id:"W7", label:"W7 强化 10/12-10/18", base:[
-    "专业课一：真题 2025 精做 + 订正",
-    "专业课二：真题 2025 精做",
-    "英语：阅读 2 套 + 翻译",
-    "政治：1000 题二刷"]},
-  {id:"W8", label:"W8 强化 10/19-10/25", base:[
-    "专业课一：真题 2026 + 专题",
-    "专业课二：专题（黑神话/只有河南/AR）",
-    "英语：阅读 2 套",
-    "政治：腿姐技巧班"]},
-  {id:"W9", label:"W9 强化 10/26-11/1", base:[
-    "专业课一：背诵名解 + 简答",
-    "专业课二：论述题模板",
-    "英语：阅读 2 套 + 新题型",
-    "政治：模拟卷（徐六）"]},
-  {id:"W10", label:"W10 强化 11/2-11/8", base:[
-    "专业课一：背诵二轮",
-    "专业课二：案例库积累",
-    "英语：作文模板定型",
-    "政治：模拟卷（腿四）"]},
-  {id:"W11", label:"W11 强化 11/9-11/15", base:[
-    "专业课一：模考 1 次 + 订正",
-    "专业课二：模考 1 次",
-    "英语：模考 1 套（限时）",
-    "政治：肖八一刷"]},
-  {id:"W12", label:"W12 强化 11/16-11/22", base:[
-    "专业课一：薄弱章补漏",
-    "专业课二：热点复盘",
-    "英语：阅读错题重做",
-    "政治：肖八二刷"]},
-  {id:"W13", label:"W13 收口 11/30-12/6", base:[
-    "专业课一：押题背诵",
-    "专业课二：押题背诵",
-    "英语：作文背诵 + 模考",
-    "政治：肖四背诵"]},
-  {id:"W14", label:"W14 收口 12/7-12/13", base:[
-    "专业课一：全科模考 ×2",
-    "专业课二：全科模考 ×2",
-    "英语：全科模考",
-    "政治：肖四熟背"]},
-  {id:"W15", label:"W15 考前 12/14-12/20", base:[
-    "专业课一：高频考点 + 名解简答最后过一遍",
-    "专业课二：论述模板 + 案例库查漏补缺",
-    "英语：作文模板默写 + 不做新题保温手感",
-    "政治：肖四熟背 + 选择题保温",
-    "12/19-20 初试：调作息、备齐证件文具（准考证/身份证/2B铅笔/黑笔）、提前看考场"]}
-];
+<!-- 学员入口 CTA -->
+<section class="cta-student">
+  <div class="wrap">
+    <h2>学员专属入口</h2>
+    <p>已报名的学员与家长，请由此进入您的专属规划台，查看打卡进度、周计划与每日陪伴报告。</p>
+    <!-- 学员子页面入口 -->
+    <a class="btn-blue" href="/app/wangwenjia">进入学员规划台</a>
+  </div>
+</section>
 
-// ---------- 数据 ----------
-function load(){
-  try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; }
-}
-function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+<footer>
+  <div class="wrap">
+    <div class="f-logo">芊芯教育 · 专注青少年成长全链路规划</div>
+    <div>电话 <a href="tel:13525561776">135 2556 1776</a> · © 2026 河南芊芯教育科技有限责任公司</div>
+  </div>
+</footer>
 
-// 云端共享（档B：公开读、仅学生可改）
-const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyeGRvY2h0c3F4cmtwdGlxc21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTE4MDEsImV4cCI6MjEwMzQ2NzgwMX0.lUGLZAhx3N5julQHSNHxEmgTXDpEAakyjp0NQpF0YLw";
-const WRITE_PWD = "Xiang19860325!!";            // 仅学生知道的写密码
-const SUPABASE_TABLE = "wangwenjia_checkins";
-const WEEKLY_TABLE = "wangwenjia_weekly";
-// 写入口改为数据库 RPC（save_wangwenjia），service_role 密钥永不出现在前端
-
-function syncToSupabase(date, rec){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
-  const num = function(s){ return (s !== "" && s != null) ? parseFloat(s) : null; };
-  const str = function(s){ return (s != null && s !== "") ? String(s) : null; };
-  const row = {
-    date: date, student: "王文嘉",
-    p1_hours: num(rec.p1 && rec.p1.hours), p1_done: !!(rec.p1 && rec.p1.done), p1_note: str(rec.p1 && rec.p1.note),
-    p2_hours: num(rec.p2 && rec.p2.hours), p2_done: !!(rec.p2 && rec.p2.done), p2_note: str(rec.p2 && rec.p2.note),
-    en_hours: num(rec.en && rec.en.hours), en_done: !!(rec.en && rec.en.done), en_note: str(rec.en && rec.en.note),
-    pol_hours: num(rec.pol && rec.pol.hours), pol_done: !!(rec.pol && rec.pol.done), pol_note: str(rec.pol && rec.pol.note),
-    images: (rec.images && rec.images.length) ? rec.images : []
-  };
-  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
-  const payload = D.weekly[wk] || {};
-  fetch(SUPABASE_URL + "/rest/v1/rpc/save_wangwenjia", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON },
-    body: JSON.stringify({ p_write_pwd: WRITE_PWD, p_checkin: row, p_weekly: { wk: wk, payload: payload } })
-  }).then(function(r){ return r.json(); }).then(function(j){ if(j && j.error) console.warn("sync rejected:", j.error); })
-    .catch(function(e){ console.warn("sync skip:", e); });
-}
-// 仅推周数据（模考/复盘改动时调用，不碰每日打卡行）
-function syncWeeklyNow(){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
-  const wk = WEEKS[curWeekIdx] ? WEEKS[curWeekIdx].id : "";
-  const payload = D.weekly[wk] || {};
-  fetch(SUPABASE_URL + "/rest/v1/rpc/save_wangwenjia", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON },
-    body: JSON.stringify({ p_write_pwd: WRITE_PWD, p_checkin: null, p_weekly: { wk: wk, payload: payload } })
-  }).catch(function(e){ console.warn("sync skip:", e); });
-}
-
-// 打开时从云端匿名只读拉取，实时显示最新进度（任何人开链接都看得到）
-async function fetchCloud(){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
-  try{
-    const cUrl = SUPABASE_URL + "/rest/v1/" + SUPABASE_TABLE + "?student=eq." + encodeURIComponent("王文嘉") + "&order=date.asc";
-    const cRes = await fetch(cUrl, { headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON } });
-    const rows = await cRes.json();
-    const checkins = {};
-    rows.forEach(function(r){
-      checkins[r.date] = {
-        p1: { hours: r.p1_hours, done: !!r.p1_done, note: r.p1_note || "" },
-        p2: { hours: r.p2_hours, done: !!r.p2_done, note: r.p2_note || "" },
-        en: { hours: r.en_hours, done: !!r.en_done, note: r.en_note || "" },
-        pol: { hours: r.pol_hours, done: !!r.pol_done, note: r.pol_note || "" },
-        images: Array.isArray(r.images) ? r.images : []
-      };
-    });
-    D.checkins = checkins;
-    const wUrl = SUPABASE_URL + "/rest/v1/" + WEEKLY_TABLE + "?student=eq." + encodeURIComponent("王文嘉");
-    const wRes = await fetch(wUrl, { headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON } });
-    const wrows = await wRes.json();
-    const weekly = {};
-    wrows.forEach(function(r){ weekly[r.wk] = r.payload; });
-    D.weekly = weekly;
-    save(D);
-    renderAll();
-  }catch(e){ console.warn("fetch skip:", e); }
-}
-
-function renderAll(){
-  renderTop(); renderCheckin(); renderLights(); renderTabs(); renderTasks(); renderTargets(); renderExtra(); renderPredict(); renderTimeline();
-}
-let D = load();
-if(!D.checkins) D.checkins = {};
-if(!D.weekly) D.weekly = {};   // { W1: { "p1:0":true } }
-
-function todayStr(){ const t=new Date(); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); }
-let curDate = todayStr();
-let curWeekIdx = 0;
-
-// ---------- 倒计时 / 阶段 ----------
-function renderTop(){
-  const ex = new Date(EXAM+"T00:00:00");
-  const now = new Date();
-  const days = Math.ceil((ex - now)/86400000);
-  document.getElementById("countdown").textContent = "D-" + days;
-  let ph = "未开始";
-  for(const p of PHASES){ if(curDate >= p.start && curDate <= p.end){ ph = p.name; break; } }
-  if(curDate < PHASES[0].start) ph = "预热";
-  if(curDate > PHASES[PHASES.length-1].end) ph = "考后";
-  document.getElementById("phase").textContent = ph;
-  document.getElementById("todayDate").textContent = "日期：" + curDate;
-}
-
-// ---------- 今日打卡 ----------
-function escHtml(s){
-  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-function escAttr(s){
-  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-// 某科目从首次打卡到今天累计学习的小时数（跨所有日期求和）
-function cumHours(key){
-  let total = 0;
-  for(const d in D.checkins){
-    const r = D.checkins[d] && D.checkins[d][key];
-    if(r && r.hours){ total += parseFloat(r.hours) || 0; }
-  }
-  return total;
-}
-// 累计打卡天数（任意科目有时长或勾选即算一天）
-function cumDays(){
-  let n = 0;
-  for(const d in D.checkins){
-    const c = D.checkins[d] || {};
-    const any = ["p1","p2","en","pol"].some(function(k){
-      const r = c[k]; return r && (r.hours || r.done);
-    });
-    if(any) n++;
-  }
-  return n;
-}
-function renderCheckin(){
-  const box = document.getElementById("checkin");
-  box.innerHTML = "";
-  const rec = D.checkins[curDate] || {};
-  const days = cumDays();
-  for(const s of SUBJECTS){
-    const r = rec[s.key] || {};
-    const hours = r.hours != null ? r.hours : "";
-    const done = !!r.done;
-    const note = r.note || "";
-    const cum = cumHours(s.key);
-    const cumTxt = cum > 0 ? '累计 <b>'+cum.toFixed(1)+'</b> h' + (days>0 ? '（共 '+days+' 天）' : '') : '累计 0 h';
-    const block = document.createElement("div");
-    block.className = "subj-block";
-    block.innerHTML =
-      '<div class="row">'+
-        '<span class="sub-name">'+s.name+'</span>'+
-        '<input class="hinput" type="number" min="0" step="0.5" placeholder="h" value="'+hours+'" data-k="'+s.key+'" data-f="hours">'+
-        '<label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);">完成<input class="chk" type="checkbox" data-k="'+s.key+'" data-f="done" '+(done?"checked":"")+'></label>'+
-      '</div>'+
-      '<textarea class="sub-note" data-k="'+s.key+'" data-f="note" placeholder="今日'+s.name+'学了什么 / 卡在哪 / 下一步…">'+escHtml(note)+'</textarea>'+
-      '<div class="sub-cum">'+cumTxt+'</div>';
-    box.appendChild(block);
-  }
-  // 笔记实时存本地（避免刷新丢字），云端在点保存时统一推
-  box.querySelectorAll("textarea.sub-note").forEach(function(ta){
-    ta.addEventListener("input", function(){
-      const k = this.dataset.k;
-      D.checkins[curDate] = D.checkins[curDate] || {};
-      D.checkins[curDate][k] = D.checkins[curDate][k] || {};
-      D.checkins[curDate][k].note = this.value;
-      save(D);
-    });
-  });
-  renderImages();
-}
-
-// 压缩到 1200px 宽、JPEG 0.7，控制 localStorage 不爆
-function compressImage(file, maxW, quality){
-  maxW = maxW || 1200; quality = quality == null ? 0.7 : quality;
-  return new Promise(function(resolve, reject){
-    const reader = new FileReader();
-    reader.onload = function(e){
-      const img = new Image();
-      img.onload = function(){
-        const ratio = Math.min(1, maxW / img.width);
-        const w = Math.round(img.width * ratio);
-        const h = Math.round(img.height * ratio);
-        const canvas = document.createElement("canvas");
-        canvas.width = w; canvas.height = h;
-        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      };
-      img.onerror = function(){ reject(new Error("图片解码失败")); };
-      img.src = e.target.result;
-    };
-    reader.onerror = function(){ reject(new Error("文件读取失败")); };
-    reader.readAsDataURL(file);
-  });
-}
-// images 元素兼容两种格式：新 {full,thumb} / 老 "dataURL字符串"
-function imgFull(it){ return (it && typeof it === "object") ? it.full : it; }
-function imgThumb(it){ return (it && typeof it === "object") ? (it.thumb || it.full) : it; }
-function renderImages(){
-  const rec = D.checkins[curDate] || {};
-  const imgs = rec.images || [];
-  const box = document.getElementById("thumbs");
-  if(!box) return;
-  box.innerHTML = imgs.map(function(it, i){
-    return '<div class="thumb" data-idx="'+i+'">'+
-      '<img src="'+imgThumb(it)+'" alt="笔记">'+
-      '<button class="del" data-del="'+i+'" type="button" aria-label="删除">×</button>'+
-    '</div>';
-  }).join("");
-  box.querySelectorAll(".del").forEach(function(b){
-    b.addEventListener("click", function(e){
-      e.stopPropagation();
-      const i = +this.getAttribute("data-del");
-      const rec = D.checkins[curDate] || {};
-      rec.images = rec.images || [];
-      rec.images.splice(i, 1);
-      D.checkins[curDate] = rec;
-      save(D);
-      renderImages();
-    });
-  });
-  // 点缩略图看大图
-  box.querySelectorAll(".thumb").forEach(function(t){
-    t.addEventListener("click", function(){
-      const i = +this.getAttribute("data-idx");
-      const src = imgFull(imgs[i]);
-      if(src) showLightbox(src);
-    });
-  });
-}
-// 全屏看大图
-function showLightbox(src){
-  let lb = document.getElementById("lb");
-  if(!lb){
-    lb = document.createElement("div");
-    lb.id = "lb";
-    lb.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;";
-    lb.innerHTML = '<img style="max-width:96%;max-height:96%;border-radius:8px;"><div style="position:absolute;top:14px;right:18px;color:#fff;font-size:30px;line-height:1;cursor:pointer;">×</div>';
-    lb.addEventListener("click", function(){ this.style.display = "none"; });
-    document.body.appendChild(lb);
-  }
-  lb.querySelector("img").src = src;
-  lb.style.display = "flex";
-}
-
-document.getElementById("saveBtn").addEventListener("click", function(){
-  const rec = D.checkins[curDate] || {};
-  document.querySelectorAll("#checkin .hinput").forEach(inp=>{
-    const k = inp.dataset.k; rec[k] = rec[k] || {};
-    rec[k].hours = inp.value ? parseFloat(inp.value) : "";
-  });
-  document.querySelectorAll("#checkin .chk").forEach(c=>{
-    const k = c.dataset.k; rec[k] = rec[k] || {};
-    rec[k].done = c.checked;
-  });
-  // 笔记已在 input 时实时存了本地，这里再读一次以防 textarea 被外部重建
-  document.querySelectorAll("#checkin .sub-note").forEach(ta=>{
-    const k = ta.dataset.k; rec[k] = rec[k] || {};
-    rec[k].note = ta.value;
-  });
-  rec.images = rec.images || [];   // 图片在上传时已存
-  D.checkins[curDate] = rec; save(D);
-  document.getElementById("saveOk").textContent = "已保存 " + curDate;
-  syncToSupabase(curDate, rec);
-  renderLights();
-});
-
-document.getElementById("upInput").addEventListener("change", async function(e){
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-  try{
-    // 原图 1200px 存本地+云端；缩略图 240px 专供微信推送（小才塞得进推送）
-    const full  = await compressImage(f, 1200, 0.7);
-    const thumb = await compressImage(f, 240, 0.6);
-    const rec = D.checkins[curDate] || {};
-    rec.images = rec.images || [];
-    if(rec.images.length >= 3) rec.images.shift();   // 最多 3 张，最老的让位
-    rec.images.push({ full: full, thumb: thumb });
-    D.checkins[curDate] = rec;
-    save(D);
-    renderImages();
-  }catch(err){
-    console.warn("upload fail:", err);
-    alert("图片处理失败：" + (err && err.message || "未知错误"));
-  }finally{
-    e.target.value = "";  // 允许重新选同一张
-  }
-});
-
-// ---------- 状态灯 ----------
-function weekOf(dateStr){
-  for(let i=0;i<WEEKS.length;i++){
-    const w = WEEKS[i];
-    const range = w.label.match(/(\d{1,2})\/(\d{1,2})-(\d{1,2})\/(\d{1,2})/);
-    if(range){
-      const y = 2026, m1=+range[1], d1=+range[2], m2=+range[3], d2=+range[4];
-      const s = new Date(y+"-"+String(m1).padStart(2,"0")+"-"+String(d1).padStart(2,"0")+"T00:00:00");
-      const e = new Date(y+"-"+String(m2).padStart(2,"0")+"-"+String(d2).padStart(2,"0")+"T00:00:00");
-      const d = new Date(dateStr+"T00:00:00");
-      if(d>=s && d<=e) return i;
-    }
-  }
-  return -1;
-}
-function renderLights(){
-  const box = document.getElementById("lights");
-  // 本周(周一~周日)基于 curDate 算（用 curDate 而非 new Date()，与页面查看日期一致，回看历史也正确）
-  const cur = new Date(curDate + "T00:00:00");
-  const dow = (cur.getDay() + 6) % 7;   // 0=周一, 6=周日
-  const monday = new Date(cur); monday.setDate(cur.getDate() - dow);
-  const fmt = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const todayStr = curDate;
-  const weekDates = [];
-  for (let i=0; i<7; i++){
-    const d = new Date(monday); d.setDate(monday.getDate() + i);
-    weekDates.push(fmt(d));
-  }
-  // 渲染：每科一行 = 名称 + 7格 + 分数 X/7
-  let html = "";
-  for (const s of SUBJECTS){
-    let done = 0;
-    const cells = weekDates.map(function(d){
-      const r = (D.checkins[d] || {})[s.key] || {};
-      const isDone = r.done || (r.hours && r.hours > 0);
-      if (isDone) done++;
-      const isFuture = d > todayStr;
-      const isToday = d === todayStr;
-      const cls = "grid-cell" + (isFuture ? " future" : (isDone ? " done" : "")) + (isToday ? " today" : "");
-      const tip = s.name + " · " + d + (isFuture ? "（未到）" : (isDone ? "（已打卡）" : "（未打卡）"));
-      return '<span class="'+cls+'" title="'+tip+'"></span>';
-    }).join("");
-    html += '<div class="lights-row"><span class="lights-name">'+s.name+'</span><div class="lights-grid">'+cells+'</div><span class="lights-frac">'+done+'/7</span></div>';
-  }
-  box.innerHTML = html;
-  // 每周复盘（接在状态灯最后一行，与周验收清单同一周 curWeekIdx）
-  const revBox = document.getElementById("lightsReview");
-  if(revBox){
-    const wk = WEEKS[curWeekIdx];
-    const review = (D.weekly[wk.id] || {}).review || "";
-    revBox.innerHTML = '<div class="sub-h" style="margin-top:10px;">本周复盘 · '+wk.label.split(" ")[0]+'</div>'+
-      '<textarea class="sub-note" placeholder="本周得失、卡点、下周调整……">'+escHtml(review)+'</textarea>';
-    const ta = revBox.querySelector("textarea");
-    if(ta) ta.addEventListener("input", function(){
-      D.weekly[wk.id] = D.weekly[wk.id] || {};
-      D.weekly[wk.id].review = this.value;
-      save(D); syncWeeklyNow();
-    });
-  }
-}
-
-// ---------- 周清单 ----------
-function renderTabs(){
-  const tabs = document.getElementById("wkTabs");
-  tabs.innerHTML = "";
-  WEEKS.forEach((w,i)=>{
-    const b = document.createElement("button");
-    b.textContent = w.label.split(" ")[0];
-    if(i===curWeekIdx) b.className = "on";
-    b.onclick = ()=>{ curWeekIdx = i; renderTabs(); renderTasks(); renderExtra(); renderLights(); };
-    tabs.appendChild(b);
-  });
-}
-// 空周自动带出当周 base 底稿（每周一打开即见；已存在则不覆盖，尊重学生改动）
-function ensureWeek(wk){
-  const w = D.weekly[wk.id];
-  if(!w || !w.tasks){
-    D.weekly[wk.id] = D.weekly[wk.id] || {};
-    D.weekly[wk.id].tasks = (wk.base||[]).map(function(t){ return {text:t, done:false}; });
-    save(D); syncWeeklyNow();
-  }
-  return D.weekly[wk.id];
-}
-function renderTasks(){
-  const wk = WEEKS[curWeekIdx];
-  const w = ensureWeek(wk);
-  const tasks = w.tasks || [];
-  const box = document.getElementById("wkTasks");
-  box.innerHTML = "";
-  tasks.forEach(function(t, i){
-    const div = document.createElement("div");
-    div.className = "task" + (t.done ? " done" : "");
-    div.innerHTML =
-      '<input type="checkbox" '+(t.done?"checked":"")+' data-i="'+i+'">'+
-      '<input type="text" class="tk-text" data-i="'+i+'" value="'+escAttr(t.text||"")+'">'+
-      '<button type="button" class="tk-del" data-i="'+i+'" aria-label="删除">×</button>';
-    box.appendChild(div);
-  });
-  const total = tasks.length, checked = tasks.filter(function(t){ return t.done; }).length;
-  const pct = total ? Math.round(checked/total*100) : 0;
-  document.getElementById("wkLabel").textContent = wk.label;
-  document.getElementById("wkPct").textContent = "完成 "+checked+"/"+total;
-  document.getElementById("wkBar").style.width = pct+"%";
-  // 勾选
-  box.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
-    cb.addEventListener("change", function(){
-      const i = +this.dataset.i;
-      D.weekly[wk.id].tasks[i].done = this.checked;
-      save(D); syncWeeklyNow(); renderTasks();
-    });
-  });
-  // 改文字（不重渲染，避免丢焦点）
-  box.querySelectorAll('.tk-text').forEach(function(inp){
-    inp.addEventListener("input", function(){
-      const i = +this.dataset.i;
-      D.weekly[wk.id].tasks[i].text = this.value;
-      save(D); syncWeeklyNow();
-    });
-  });
-  // 删除
-  box.querySelectorAll('.tk-del').forEach(function(b){
-    b.addEventListener("click", function(){
-      const i = +this.dataset.i;
-      D.weekly[wk.id].tasks.splice(i, 1);
-      save(D); syncWeeklyNow(); renderTasks();
-    });
-  });
-  // 添加 / 恢复推荐
-  const foot = document.getElementById("wkFoot");
-  if(foot){
-    foot.innerHTML = '<button type="button" class="tk-add">+ 添加任务</button>'+
-                     '<button type="button" class="tk-reset">↺ 恢复推荐</button>';
-    foot.querySelector('.tk-add').addEventListener("click", function(){
-      D.weekly[wk.id].tasks = D.weekly[wk.id].tasks || [];
-      D.weekly[wk.id].tasks.push({text:"", done:false});
-      save(D); syncWeeklyNow(); renderTasks();
-      const ins = box.querySelectorAll('.tk-text');
-      if(ins.length) ins[ins.length-1].focus();
-    });
-    foot.querySelector('.tk-reset').addEventListener("click", function(){
-      D.weekly[wk.id].tasks = (wk.base||[]).map(function(t){ return {text:t, done:false}; });
-      save(D); syncWeeklyNow(); renderTasks();
-    });
-  }
-}
-// 目标卡（只列各科分数目标，院校方向不显示）
-function renderTargets(){
-  const box = document.getElementById("targets");
-  if(!box) return;
-  const items = SUBJECTS.map(function(s){ return { name:s.name, t:TARGETS[s.key] }; });
-  items.push({ name:"总分", t:TARGETS.total, total:true });
-  box.innerHTML = items.map(function(it){
-    return '<div class="tg'+(it.total?' total':'')+'">'+
-      '<div class="n">'+it.name+'</div>'+
-      '<div class="v">'+it.t+'</div></div>';
-  }).join("");
-}
-// 模考/真题成绩 + 每周复盘（独立于 checklist，切周/初始化才重建，避免输入丢焦点）
-function renderExtra(){
-  const wk = WEEKS[curWeekIdx];
-  const box = document.getElementById("wkExtra");
-  if(!box) return;
-  const w = D.weekly[wk.id] || {};
-  const ex = w.exams || {};
-  box.innerHTML =
-    '<div class="sub-h">本周模考 / 真题成绩</div>'+
-    '<div class="exam-row">'+
-      SUBJECTS.map(function(s){
-        const v = (ex[s.key]!=null) ? ex[s.key] : '';
-        return '<label>'+s.name+'<input type="number" min="0" inputmode="numeric" data-ex="'+s.key+'" value="'+v+'"></label>';
-      }).join('')+
-    '</div>'+
-    '<div class="tip">仅在做了模考 / 真题的当周填写；留空 = 未考。填完自动存云端。</div>';
-  box.querySelectorAll('input[data-ex]').forEach(function(inp){
-    inp.addEventListener('input', function(){
-      const k = this.getAttribute('data-ex');
-      D.weekly[wk.id] = D.weekly[wk.id] || {};
-      D.weekly[wk.id].exams = D.weekly[wk.id].exams || {};
-      const val = this.value === '' ? null : (parseFloat(this.value) || 0);
-      if(val===null) delete D.weekly[wk.id].exams[k]; else D.weekly[wk.id].exams[k] = val;
-      save(D); syncWeeklyNow();
-    });
-  });
-}
-
-// ---------- 分数预估（对数学习曲线 + 蒙特卡洛） ----------
-const MAXES = { p1:150, p2:150, en:100, pol:100 };
-// 截至某日期（含）某科目累计学习小时
-function cumHoursUpTo(key, dateStr){
-  let t = 0;
-  for(const d in D.checkins){ if(d <= dateStr){ const r = D.checkins[d] && D.checkins[d][key]; if(r && r.hours) t += parseFloat(r.hours)||0; } }
-  return t;
-}
-// 周标签里的结束日期 YYYY-MM-DD
-function weekEndDate(wk){
-  const m = wk.label.match(/(\d{1,2})\/(\d{1,2})-(\d{1,2})\/(\d{1,2})/);
-  if(!m) return null;
-  return "2026-"+String(+m[3]).padStart(2,'0')+"-"+String(+m[4]).padStart(2,'0');
-}
-// 收集某科目所有模考点 {h:累计小时, s:分数}
-function getMocks(key){
-  const pts = [];
-  for(const wk of WEEKS){
-    const w = D.weekly[wk.id];
-    if(w && w.exams && w.exams[key] != null){
-      const h = cumHoursUpTo(key, weekEndDate(wk));
-      pts.push({ h:h, s:w.exams[key] });
-    }
-  }
-  return pts;
-}
-// 稳定随机（mulberry32），让概率不每次跳动
-function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
-function gaussR(rng){ let u=0,v=0; while(u===0)u=rng(); while(v===0)v=rng(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
-// 对数最小二乘拟合 s = a + b*ln(1+h)
-function logFit(pts){
-  const X = pts.map(p=>Math.log(1+Math.max(0,p.h)));
-  const Y = pts.map(p=>p.s);
-  const n = X.length; let sx=0,sy=0,sxx=0,sxy=0;
-  for(let i=0;i<n;i++){ sx+=X[i]; sy+=Y[i]; sxx+=X[i]*X[i]; sxy+=X[i]*Y[i]; }
-  const den = n*sxx - sx*sx;
-  const b = den!==0 ? (n*sxy - sx*sy)/den : 0;
-  const a = (sy - b*sx)/n;
-  return {a,b};
-}
-// 预计考前该科累计小时（按目前日均节奏外推）
-function projectHours(key){
-  const cur = cumHours(key);
-  let first=null;
-  for(const d in D.checkins){ const c=D.checkins[d]||{}; if(["p1","p2","en","pol"].some(k=>c[k]&&(c[k].hours||c[k].done))){ if(first===null||d<first) first=d; } }
-  const today = curDate;
-  let daysSince = 1;
-  if(first){ daysSince = Math.max(1, Math.round((new Date(today+"T00:00:00") - new Date(first+"T00:00:00"))/86400000)+1); }
-  const daily = cur>0 ? cur/daysSince : 0;
-  const daysLeft = Math.max(0, Math.ceil((new Date(EXAM+"T00:00:00") - new Date(today+"T00:00:00"))/86400000));
-  return cur + daysLeft*daily;
-}
-// 单科预估 + 达标概率（蒙特卡洛 3000 次）
-function predictSubject(key){
-  const pts = getMocks(key);
-  if(pts.length < 2) return { insufficient:true };
-  const fit = logFit(pts);
-  const finalH = projectHours(key);
-  const max = MAXES[key];
-  let point = fit.a + fit.b*Math.log(1+Math.max(0,finalH));
-  point = Math.min(max, Math.max(0, point));
-  let seed = 0; pts.forEach(p=>{ seed += Math.round(p.h*7) + p.s*13; });
-  const rng = mulberry32(seed|0 || 1);
-  const N=3000, sigma=5; let hit=0;
-  for(let i=0;i<N;i++){
-    const effH = finalH*(1+gaussR(rng)*0.15);
-    const noise = gaussR(rng)*sigma;
-    let s = fit.a + fit.b*Math.log(1+Math.max(0,effH)) + noise;
-    s = Math.min(max, Math.max(0, s));
-    if(s >= TARGETS[key]) hit++;
-  }
-  return { insufficient:false, point:point, gap:point-TARGETS[key], prob:hit/N, pts:pts };
-}
-// 迷你学习曲线（橙点=模考实测，黑方块=预测点）
-function predictSvg(p){
-  const W=130,H=38,pad=6;
-  const vals = p.pts.map(x=>x.s).concat([p.point]);
-  let mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
-  if(mx-mn < 10){ mn-=5; mx+=5; }
-  const n=p.pts.length;
-  const xAt = i => pad + (W-2*pad)*(i/n);
-  const yAt = v => (H-pad) - (H-2*pad)*((v-mn)/((mx-mn)||1));
-  let ptsStr = p.pts.map((x,i)=>xAt(i).toFixed(1)+','+yAt(x.s).toFixed(1)).join(' ');
-  ptsStr += ' '+xAt(n).toFixed(1)+','+yAt(p.point).toFixed(1);
-  const dots = p.pts.map((x,i)=>'<circle cx="'+xAt(i).toFixed(1)+'" cy="'+yAt(x.s).toFixed(1)+'" r="3" fill="#B05A33"/>').join('');
-  const sq = '<rect x="'+(xAt(n)-3.5).toFixed(1)+'" y="'+(yAt(p.point)-3.5).toFixed(1)+'" width="7" height="7" fill="#20303D"/>';
-  return '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="flex:none"><polyline points="'+ptsStr+'" fill="none" stroke="#888780" stroke-width="1.5"/>'+dots+sq+'</svg>';
-}
-function renderPredict(){
-  const box = document.getElementById("predict");
-  if(!box) return;
-  const preds = SUBJECTS.map(s=>({s:s, p:predictSubject(s.key)}));
-  const sufficient = preds.filter(x=>!x.p.insufficient);
-  if(sufficient.length === 0){
-    box.innerHTML = '<div class="pr-empty">暂无足够模考数据（每科需 ≥2 次模考）。录入后自动显示预估。<br>在「周验收清单」对应周填写模考成绩即可。</div>';
-    return;
-  }
-  let totP=0, totGap=0, totProb=0;
-  const rows = preds.map(function(x){
-    const s=x.s, p=x.p;
-    if(p.insufficient){
-      return '<div class="pr-row"><span class="pr-name">'+s.name+'</span><span class="pr-placeholder">需 ≥2 次模考</span><span class="pr-prob">--</span></div>';
-    }
-    totP+=p.point; totGap+=p.gap; totProb+=p.prob;
-    const gapTxt = p.gap>=0 ? '<span class="pr-up">超'+p.gap.toFixed(0)+'</span>' : '<span class="pr-down">差'+(-p.gap).toFixed(0)+'</span>';
-    let tag,cls; if(p.prob>=0.8){ tag='高'; cls='ok'; } else if(p.prob>=0.5){ tag='临界'; cls='warn'; } else { tag='危险'; cls='bad'; }
-    return '<div class="pr-row">'+
-      '<span class="pr-name">'+s.name+'</span>'+
-      '<span class="pr-score">'+p.point.toFixed(0)+'</span>'+
-      gapTxt+
-      predictSvg(p)+
-      '<span class="pr-prob">'+(p.prob*100).toFixed(0)+'%</span>'+
-      '<span class="pr-tag '+cls+'">'+tag+'</span></div>';
-  }).join('');
-  const cnt = sufficient.length;
-  const avgProb = totProb/cnt;
-  const totGapTxt = totGap>=0 ? '<span class="pr-up">超'+totGap.toFixed(0)+'</span>' : '<span class="pr-down">差'+(-totGap).toFixed(0)+'</span>';
-  const totalRow = '<div class="pr-row pr-total"><span class="pr-name">总分</span><span class="pr-score">'+totP.toFixed(0)+'</span>'+totGapTxt+'<span style="flex:none;width:130px;display:inline-block"></span><span class="pr-prob">'+(avgProb*100).toFixed(0)+'%</span><span class="pr-tag '+(avgProb>=0.8?'ok':avgProb>=0.5?'warn':'bad')+'">总体</span></div>';
-  box.innerHTML = rows + totalRow;
-}
-
-// ---------- 关键时间节点 ----------
-function renderTimeline(){
-  const box = document.getElementById("timeline");
-  if(!box) return;
-  const now = new Date(); now.setHours(0,0,0,0);
-  // 找最临近的未过节点（用于高亮）
-  let nextIdx = -1;
-  for(let i=0;i<MILESTONES.length;i++){
-    const d = new Date(MILESTONES[i].date + "T00:00:00");
-    if(d >= now){ nextIdx = i; break; }
-  }
-  box.innerHTML = MILESTONES.map(function(m, i){
-    const d = new Date(m.date + "T00:00:00");
-    const diff = Math.round((d - now)/86400000);
-    let cls = "row", cd;
-    if(diff < 0){ cls += " past"; cd = "已结束"; }
-    else if(i === nextIdx){ cls += " next"; cd = (diff===0 ? "今天" : ("剩"+diff+"天")); }
-    else { cd = (diff===0 ? "今天" : ("剩"+diff+"天")); }
-    return '<div class="'+cls+'">'+
-      '<span class="nm">'+m.name+'</span>'+
-      '<span class="meta">'+
-        '<span class="dt">'+m.label+'</span>'+
-        '<span class="cd">'+cd+'</span>'+
-      '</span>'+
-    '</div>';
-  }).join("");
-}
-
-// ---------- 初始化 ----------
-curWeekIdx = Math.max(0, weekOf(curDate));
-renderAll();
-fetchCloud();
-</script>
 </body>
 </html>
