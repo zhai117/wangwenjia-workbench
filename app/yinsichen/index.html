@@ -654,6 +654,14 @@ function exportLongImage(){
   // 滚动到顶部，保证整页都截到
   const prevScroll = window.scrollY;
   window.scrollTo(0, 0);
+  // 注入品牌水印：仅出现在导出图片里，页面本身不显示
+  const mark = document.createElement('div');
+  mark.id = '__export_mark';
+  mark.style.cssText = 'margin-top:14px;padding:14px 22px;background:#20303D;border-radius:10px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;';
+  mark.innerHTML = '<span style="font-size:15px;font-weight:600;color:#F4F1EA;letter-spacing:.5px;">芊芯教育规划 · 翟老师 生成</span>'
+    + '<span style="font-size:14px;color:#E2A06E;font-weight:600;">微信：qxgb985211</span>';
+  target.appendChild(mark);
+  function removeMark(){ const m = document.getElementById('__export_mark'); if(m) m.remove(); }
   html2canvas(target, {
     scale: 2,
     backgroundColor: '#F4F1EA',
@@ -661,6 +669,7 @@ function exportLongImage(){
     windowWidth: target.scrollWidth,
     scrollY: -prevScroll
   }).then(function(canvas){
+    removeMark();
     const link = document.createElement('a');
     const d = new Date();
     const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
@@ -670,6 +679,7 @@ function exportLongImage(){
     if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
     window.scrollTo(0, prevScroll);
   }).catch(function(err){
+    removeMark();
     alert('导出失败：' + (err && err.message ? err.message : err));
     if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
     window.scrollTo(0, prevScroll);
