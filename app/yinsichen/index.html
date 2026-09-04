@@ -664,18 +664,22 @@ function exportLongImage(){
     var ctx = canvas.getContext('2d');
     var W = canvas.width, H = canvas.height;
     ctx.save();
-    // 水印参数
-    var txt = '芊芯教育规划翟老师  微信：qxgb985211';
-    ctx.font = 'bold ' + Math.round(W * 0.022) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
-    ctx.fillStyle = 'rgba(32,48,61,0.20)'; // 深墨色 20% 不透明度
+    // 水印参数（两行显示）
+    var line1 = '芊芯教育规划翟老师';
+    var line2 = '微信：qxgb985211';
+    var fontSize = Math.round(W * 0.018); // 字号稍小一点
+    ctx.font = 'bold ' + fontSize + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    ctx.fillStyle = 'rgba(32,48,61,0.10)'; // 10% 不透明度
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     // 测量文字尺寸，算出平铺间距
-    var tw = ctx.measureText(txt).width;
-    var fontSize = Math.round(W * 0.022);
+    var tw1 = ctx.measureText(line1).width;
+    var tw2 = ctx.measureText(line2).width;
+    var tw = Math.max(tw1, tw2);
     var th = fontSize * 1.4; // 行高约为字号的1.4倍
-    var gapX = tw * 2.2;  // 水平间距
-    var gapY = th * 2.8;  // 垂直间距
+    var lineHeight = fontSize * 1.5; // 两行之间的行距
+    var gapX = tw * 3.5;   // 水平间距拉大，少铺一些
+    var gapY = th * 5;     // 垂直间距拉大
     var angle = -25 * Math.PI / 180; // 斜角 -25 度
     // 从左上到右下斜着铺满
     var cols = Math.ceil((W + H * Math.tan(-angle)) / gapX) + 2;
@@ -684,11 +688,11 @@ function exportLongImage(){
       for(var c = -cols/2; c < cols*1.5; c++){
         var cx = c * gapX;
         var cy = r * gapY;
-        // 旋转变换：绕每个水印中心点旋转
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(angle);
-        ctx.fillText(txt, 0, 0);
+        ctx.fillText(line1, 0, -lineHeight/2);
+        ctx.fillText(line2, 0, lineHeight/2);
         ctx.restore();
       }
     }
