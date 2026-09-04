@@ -653,40 +653,58 @@ function exportLongImage(){
   // 滚动到顶部，保证整页都截到
   const prevScroll = window.scrollY;
   window.scrollTo(0, 0);
-  // 注入品牌水印：仅出现在导出图片里，页面本身不显示
-  const mark = document.createElement('div');
-  mark.id = '__export_mark';
-  mark.style.cssText = 'margin-top:14px;padding:14px 22px;background:#20303D;border-radius:10px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;';
-  mark.innerHTML = '<span style="font-size:15px;font-weight:600;color:#F4F1EA;letter-spacing:.5px;">芊芯教育规划 · 翟老师 生成</span>'
-    + '<span style="font-size:14px;color:#E2A06E;font-weight:600;">微信：qxgb985211</span>';
-  target.appendChild(mark);
-  // 强制浏览器重绘水印后再截图
-  mark.offsetHeight; // 触发 reflow
-  function removeMark(){ var m = document.getElementById('__export_mark'); if(m) m.remove(); }
-  // 用 requestAnimationFrame 确保下一帧（水印已渲染）再截图
-  requestAnimationFrame(function(){
-    html2canvas(target, {
-      scale: 2,
-      backgroundColor: '#F4F1EA',
-      useCORS: true,
-      windowWidth: target.scrollWidth,
-      scrollY: -prevScroll
-    }).then(function(canvas){
-      removeMark();
-      const link = document.createElement('a');
-      var d = new Date();
-      var ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-      link.download = '尹思辰保研规划_' + ymd + '.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
-      window.scrollTo(0, prevScroll);
-    }).catch(function(err){
-      removeMark();
-      alert('导出失败：' + (err && err.message ? err.message : err));
-      if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
-      window.scrollTo(0, prevScroll);
-    });
+  html2canvas(target, {
+    scale: 2,
+    backgroundColor: '#F4F1EA',
+    useCORS: true,
+    windowWidth: target.scrollWidth,
+    scrollY: -prevScroll
+  }).then(function(canvas){
+    // 在整张截图上叠加淡色半透明水印（铺满全图，不影响阅读）
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    ctx.save();
+    // 水印参数
+    var txt = '芊芯教育规划 · 翟老师 生成   微信：qxgb985211';
+    ctx.font = 'bold ' + Math.round(W * 0.022) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+    ctx.fillStyle = 'rgba(32,48,61,0.10)'; // 深墨色 10% 不透明度，很淡
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // 测量文字尺寸，算出平铺间距
+    var tw = ctx.measureText(txt).width;
+    var th = parseInt(ctx.font, 10);
+    var gapX = tw * 2.2;  // 水平间距
+    var gapY = th * 2.8;  // 垂直间距
+    var angle = -25 * Math.PI / 180; // 斜角 -25 度
+    // 从左上到右下斜着铺满
+    var cols = Math.ceil((W + H * Math.tan(-angle)) / gapX) + 2;
+    var rows = Math.ceil((H + W * Math.tan(angle)) / gapY) + 2;
+    for(var r = -rows/2; r < rows*1.5; r++){
+      for(var c = -cols/2; c < cols*1.5; c++){
+        var cx = c * gapX;
+        var cy = r * gapY;
+        // 旋转变换：绕每个水印中心点旋转
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        ctx.fillText(txt, 0, 0);
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+    // 下载
+    const link = document.createElement('a');
+    var d = new Date();
+    var ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+    link.download = '尹思辰保研规划_' + ymd + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+    window.scrollTo(0, prevScroll);
+  }).catch(function(err){
+    alert('导出失败：' + (err && err.message ? err.message : err));
+    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+    window.scrollTo(0, prevScroll);
   });
 }
 </script>
