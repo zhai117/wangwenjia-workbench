@@ -665,9 +665,9 @@ function exportLongImage(){
     var W = canvas.width, H = canvas.height;
     ctx.save();
     // 水印参数
-    var txt = '芊芯教育规划 · 翟老师 生成   微信：qxgb985211';
+    var txt = '芊芯教育规划翟老师  微信：qxgb985211';
     ctx.font = 'bold ' + Math.round(W * 0.022) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
-    ctx.fillStyle = 'rgba(32,48,61,0.10)'; // 深墨色 10% 不透明度，很淡
+    ctx.fillStyle = 'rgba(32,48,61,0.20)'; // 深墨色 20% 不透明度
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     // 测量文字尺寸，算出平铺间距
