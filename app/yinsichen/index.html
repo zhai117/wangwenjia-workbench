@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>尹思辰 · 保研规划工作台</title>
+<style>
+:root{
+  --primary:#1a56a8;--primary-light:#e8f0fb;--primary-dark:#0c3478;
+  --success:#1d7a3b;--success-light:#eaf4ed;--warning:#993c1d;--warning-light:#faecea;
+  --danger:#a32d2d;--danger-light:#fcecEB;--info:#185fa5;--info-light:#e6f1fb;
+  --bg:#f5f6f8;--card:#fff;--text:#2c2c2a;--text-muted:#6b6b68;--border:#e2e2de;
+  --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.06);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;font-size:14px;-webkit-font-smoothing:antialiased;}
+.container{max-width:800px;margin:0 auto;padding:16px;}
+
+/* header */
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:var(--radius);padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06);}
+.header-top{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;flex-shrink:0;border:2px solid rgba(255,255,255,.3);}
+.header-info h1{font-size:20px;font-weight:600;margin:0;line-height:1.3;}
+.header-info .sub{font-size:13px;opacity:.85;margin-top:2px;}
+.header-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.15);font-weight:500;}
+.header-meta{display:flex;gap:20px;margin-top:14px;font-size:12px;opacity:.9;}
+.header-meta span{display:flex;align-items:center;gap:4px;}
+
+/* cards */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title .icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0;}
+.card-title .icon-blue{background:var(--info);}
+.card-title .icon-green{background:var(--success);}
+.card-title .icon-amber{background:var(--warning);}
+.card-title .icon-red{background:var(--danger);}
+.card-title .icon-purple{background:#534ABB;}
+
+/* metrics grid */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.metric{text-align:center;padding:14px 8px;background:var(--bg);border-radius:var(--radius-sm);}
+.metric-value{font-size:22px;font-weight:600;color:var(--primary);line-height:1.2;}
+.metric-label{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.metric .good{color:var(--success);}
+.metric .warn{color:var(--warning);}
+.metric .bad{color:var(--danger);}
+
+/* status bar */
+.status-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--warning-light);border-radius:var(--radius-sm);border-left:4px solid var(--warning);font-size:13px;margin-bottom:16px;}
+.status-bar.ok{background:var(--success-light);border-color:var(--success);}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--warning);flex-shrink:0;}
+.status-bar.ok .status-dot{background:var(--success);}
+
+/* radar */
+.radar-wrap{display:flex;gap:20px;align-items:center;}
+.radar-chart{flex:1;max-width:280px;}
+.radar-desc{flex:1;font-size:13px;}
+.radar-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.radar-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.radar-score{font-weight:600;margin-left:auto;}
+
+/* timeline */
+.timeline{position:relative;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:18px;}
+.tl-item:last-child{margin-bottom:0;}
+.tl-dot{position:absolute;left:-24px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--card);border:2px solid var(--primary);z-index:1;}
+.tl-dot.done{background:var(--primary);}
+.tl-dot.current{background:var(--warning);border-color:var(--warning);animation:pulse 1.5s infinite;}
+.tl-dot.future{border-color:var(--border);background:var(--card);}
+.tl-content{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;}
+.tl-time{font-size:11px;color:var(--text-muted);margin-bottom:2px;}
+.tl-title{font-weight:500;font-size:13px;}
+.tl-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+/* task matrix */
+.matrix{overflow-x:auto;}
+.matrix table{width:100%;border-collapse:collapse;font-size:12px;}
+.matrix th{background:var(--primary-light);color:var(--primary-dark);padding:10px 8px;text-align:left;font-weight:600;font-size:12px;white-space:nowrap;}
+.matrix td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
+.matrix tr:hover td{background:var(--bg);}
+.phase-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;color:#fff;}
+.phase-done{background:var(--success);}
+.phase-current{background:var(--warning);}
+.phase-future{background:var(--text-muted);}
+.task-check{color:var(--text-muted);margin-right:4px;}
+.task-check.done{color:var(--success);}
+
+/* plan items */
+.plan-list{list-style:none;}
+.plan-list li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.plan-list li:last-child{border-bottom:none;}
+.plan-num{width:22px;height:22px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px;}
+.plan-text{flex:1;font-size:13px;}
+.plan-text strong{color:var(--text);}
+.plan-priority{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap;}
+.pri-high{background:var(--danger-light);color:var(--danger);}
+.pri-mid{background:var(--warning-light);color:var(--warning);}
+.pri-low{background:var(--info-light);color:var(--info);}
+
+/* weekly tracker */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0;}
+.day-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.day-cell.today{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.day-cell.done{background:var(--success);color:#fff;border-color:var(--success);}
+.day-cell.empty{background:transparent;border:1px dashed var(--border);color:var(--text-muted);}
+.week-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+
+/* parent summary */
+.parent-box{background:linear-gradient(135deg,#f8f6f0,#fff8ee);border:1px solid #e8dcc0;border-radius:var(--radius);padding:18px 20px;}
+.parent-box h3{font-size:14px;color:#7a5c00;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.parent-points{font-size:13px;line-height:1.8;}
+.parent-points li{margin-bottom:4px;}
+.parent-points strong{color:var(--warning);}
+
+/* action btn */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;text-decoration:none;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-outline{background:transparent;color:var(--primary);border-color:var(--primary);}
+.btn-outline:hover{background:var(--primary-light);}
+.btn-group{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+
+/* footer */
+.footer{text-align:center;font-size:11px;color:var(--text-muted);padding:20px 0 10px;}
+.footer a{color:var(--primary);text-decoration:none;}
+
+/* responsive */
+@media(max-width:600px){
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .header-meta{flex-wrap:wrap;gap:12px;}
+  .radar-wrap{flex-direction:column;}
+  .radar-chart{max-width:100%;}
+  .matrix th,.matrix td{padding:8px 6px;font-size:11px;}
+}
+
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(153,60,29,.4)}50%{box-shadow:0 0 0 8px rgba(153,60,29,0)}}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ====== HEADER ====== -->
+<div class="header">
+  <div class="header-top">
+    <div class="avatar">尹</div>
+    <div class="header-info">
+      <h1>尹思辰 &middot; 保研规划工作台</h1>
+      <div class="sub">河南大学 &nbsp;|&nbsp; 软件工程 &nbsp;|&nbsp; 大二 &nbsp;|&nbsp; 男</div>
+    </div>
+  </div>
+  <div class="header-tags">
+    <span class="tag">双一流高校</span>
+    <span class="tag">计算机类</span>
+    <span class="tag">保研目标</span>
+    <span class="tag">2028年入学</span>
+  </div>
+  <div class="header-meta">
+    <span>四级 564 分</span>
+    <span>大一下均分 85.82</span>
+    <span>学分 33.0 / 绩点 49.37</span>
+    <span>更新于 2026-09-04</span>
+  </div>
+</div>
+
+<!-- ====== 当前状态总览 ====== -->
+<div class="status-bar ok">
+  <div class="status-dot"></div>
+  <div><strong>当前评估：保研可行，但时间紧迫。</strong> 大二上学期是关键窗口期 —— 六级、竞赛、科研必须同步启动。目标定位：冲击本校/同层次双一流推免 + 向上冲刺 211。</div>
+</div>
+
+<!-- ====== 核心指标 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-blue">1</div>
+    核心指标看板
+  </div>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value good">85.82</div>
+      <div class="metric-label">加权平均分</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value good">49.37</div>
+      <div class="metric-label">获得绩点</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value warn">564</div>
+      <div class="metric-label">四级分数</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value bad">--</div>
+      <div class="metric-label">六级（待考）</div>
+    </div>
+  </div>
+  <div style="margin-top:14px;font-size:13px;">
+    <p style="margin-bottom:6px;"><strong>成绩分析：</strong>大一下学期 33 学分全部通过，无挂科。已见课程：思想道德与法治 A-（3 学分）、学术英语 A-（2 学分）、大学体育 A。整体表现良好，处于保研竞争的有利位置。</p>
+    <p style="color:var(--text-muted);font-size:12px;">注：以上为 2025-2026 学年第二学期（大一下）部分成绩。完整大一学年 GPA 需结合上学期成绩计算。保研资格通常看前 6 学期总排名。</p>
+  </div>
+</div>
+
+<!-- ====== 保研六要素雷达图 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-purple">2</div>
+    保研六要素评估
+  </div>
+  <div class="radar-wrap">
+    <div class="radar-chart">
+      <canvas id="radarChart" role="img" aria-label="保研六要素雷达图"></canvas>
+    </div>
+    <div class="radar-desc">
+      <div class="radar-item"><div class="radar-dot" style="background:#378ADD;"></div><span>绩点 / 排名</span><span class="radar-score good">75/100</span></div>
+      <div class="radar-item"><div class="radar-dot" style="background:#D85A30;"></div><span>英语能力</span><span class="radar-score warn">55/100</span></div>
+      <div class="radar-item"><div class="radar-dot" style="background:#1D9E75;"></div><span>竞赛经历</span><span class="radar-score bad">20/100</span></div>
+      <div class="radar-item"><div class="radar-dot" style="background:#993556;"></div><span>科研经历</span><span class="radar-score bad">10/100</span></div>
+      <div class="radar-item"><div class="radar-dot" style="background:#534AB7;"></div><span>论文成果</span><span class="radar-score bad">0/100</span></div>
+      <div class="radar-item"><div class="radar-dot" style="background:#BA7517;"></div><span>综合素质</span><span class="radar-score warn">40/100</span></div>
+      <p style="margin-top:12px;font-size:12px;color:var(--text-muted);">评分说明：基于当前已知信息估算。绿色=优势 / 橙色=待提升 / 红色=急需补强。大二还有 2 年时间，完全来得及。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 目标定位 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-green">3</div>
+    目标院校定位
+  </div>
+  <div style="font-size:13px;margin-bottom:12px;">
+    河南大学（双一流省属重点）软件工程专业，保研率约 10–15%。按当前成绩趋势，若保持专业排名前 15–20%，可获得本校推免资格。
+  </div>
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr);">
+    <div class="metric" style="background:var(--success-light);">
+      <div class="metric-value good" style="font-size:18px;">保底</div>
+      <div class="metric-label">河南大学本校<br><span style="color:var(--success);font-weight:500;">概率高</span></div>
+    </div>
+    <div class="metric" style="background:var(--info-light);">
+      <div class="metric-value" style="font-size:18px;color:var(--info);">匹配</div>
+      <div class="metric-label">同层次211/双一流<br><span style="color:var(--info);font-weight:500;">需冲竞赛+科研</span></div>
+    </div>
+    <div class="metric" style="background:var(--warning-light);">
+      <div class="metric-value warn" style="font-size:18px;">冲刺</div>
+      <div class="metric-label">中上游985/强势211<br><span style="color:var(--warning);font-weight:500;">需顶级履历</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 大二关键任务清单 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-amber">4</div>
+    大二上学期关键任务（当前阶段）
+  </div>
+  <ul class="plan-list">
+    <li>
+      <div class="plan-num">1</div>
+      <div class="plan-text">
+        <strong>考六级，目标 480+ 冲 520+</strong><br>
+        <span style="color:var(--text-muted);font-size:12px;">四级 564 说明基础不错。六级是保研硬门槛——多数校要求 425+，好校要 480–520+。建议本学期（2026 下）或最迟 2027 上考出成绩。</span>
+      </div>
+      <span class="plan-priority pri-high">紧急</span>
+    </li>
+    <li>
+      <div class="plan-num">2</div>
+      <div class="plan-text">
+        <strong>稳住绩点，冲专业前 15%</strong><br>
+        <span style="color:var(--text-muted);font-size:12px;">大一下 85.82 均分不错，继续保持。软件工程核心课（数据结构、算法、操作系统、计网、数据库）学分重、权重大，每门都要 85+。**绝对不能挂科**——挂科直接丧失保研资格。</span>
+      </div>
+      <span class="plan-priority pri-high">紧急</span>
+    </li>
+    <li>
+      <div class="plan-num">3</div>
+      <div class="plan-text">
+        <strong>参加 1–2 项 A 类竞赛（计算机类优先）</strong><br>
+        <span style="color:var(--text-muted);font-size:12px;">软件工程方向推荐：<strong>蓝桥杯</strong>（入门友好）、<strong>中国大学生计算机设计大赛</strong>、<strong>ACM-ICPC 程序设计</strong>（进阶）、<strong>全国大学生数学建模</strong>（跨学科加分）。每年深耕 1–2 个，别贪多。</span>
+      </div>
+      <span class="plan-priority pri-high">重要</span>
+    </li>
+    <li>
+      <div class="plan-num">4</div>
+      <div class="plan-text">
+        <strong>进导师课题组 / 大创项目</strong><br>
+        <span style="color:var(--text-muted);font-size:12px;">主动联系本院做软件工程/AI/大数据方向的导师，从文献检索、数据整理、代码实现做起。争取参与 1 个完整项目，为后续论文和夏令营材料打底。</span>
+      </div>
+      <span class="plan-priority pri-mid">重要</span>
+    </li>
+    <li>
+      <div class="plan-num">5</div>
+      <div class="plan-text">
+        <strong>开始积累保研材料</strong><br>
+        <span style="color:var(--text-muted);font-size:12px;">整理成绩单（每学期）、做一份 CV 初稿、记录竞赛/项目经历。不用现在就完美，但要养成"留痕"习惯——大三投夏令营时这些全要用。</span>
+      </div>
+      <span class="plan-priority pri-low">建议</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ====== 全程时间轴 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-blue">5</div>
+    保研全程关键时间轴
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot done"></div>
+      <div class="tl-content">
+        <div class="tl-time">已完成 — 大一（2025.09 – 2026.06）</div>
+        <div class="tl-title">定位筑基阶段</div>
+        <div class="tl-desc">适应大学生活、稳住基础课成绩、过四级 564 分。✅ 无挂科，开局良好。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot current"></div>
+      <div class="tl-content" style="border-left:3px solid var(--warning);">
+        <div class="tl-time">📍 当前 — 大二上（2026.09 – 2027.01）</div>
+        <div class="tl-title">强化蓄能 · 关键窗口期</div>
+        <div class="tl-desc"><strong>本学期必做：</strong>① 考六级 ② 稳核心课 85+ ③ 报名 1 项 A 类竞赛 ④ 联系导师进组。这是拉开差距的黄金期。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot future"></div>
+      <div class="tl-content">
+        <div class="tl-time">即将到来 — 大二下（2027.02 – 2027.06）</div>
+        <div class="tl-title">竞赛出成果 + 科研深入</div>
+        <div class="tl-desc">竞赛拿奖（省级起步冲国奖）；科研有实质性产出（代码/实验数据/初稿）；刷高六级；保持排名。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot future"></div>
+      <div class="tl-content">
+        <div class="tl-time">大三上（2027.09 – 2028.01）</div>
+        <div class="tl-title">冲刺展翼 · 夏令营准备</div>
+        <div class="tl-desc">确定目标院校清单；打磨 CV/PS/推荐信；3–5 月关注各校夏令营公告；可能发表论文。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot future"></div>
+      <div class="tl-content">
+        <div class="tl-time">大三下 – 大四上（2028.02 – 2028.10）</div>
+        <div class="tl-title">决胜腾飞 · 夏令营 → 预推免 → 正式推免</div>
+        <div class="tl-desc">5–6 月投夏令营 → 7–8 月参营考核 → 9 月预推免补位 → 9–10 月推免系统填报确认录取。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 年级任务矩阵 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-green">6</div>
+    四年任务矩阵（个性化版）
+  </div>
+  <div class="matrix">
+    <table>
+      <thead>
+        <tr>
+          <th>年级</th>
+          <th>阶段</th>
+          <th>绩点</th>
+          <th>英语</th>
+          <th>竞赛</th>
+          <th>科研</th>
+          <th>其他</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="phase-tag phase-done">大一</span></td>
+          <td>定位筑基</td>
+          <td><span class="task-check done">✓</span> 均分 85.82，无挂科</td>
+          <td><span class="task-check done">✓</span> 四级 564</td>
+          <td><span class="task-check">○</span> 待启动</td>
+          <td><span class="task-check">○</span> 待启动</td>
+          <td>熟悉专业 / 防坑</td>
+        </tr>
+        <tr style="background:var(--warning-light);">
+          <td><span class="phase-tag phase-current">大二</span></td>
+          <td><strong>强化蓄能</strong></td>
+          <td><strong>冲前 15%</strong>，核心课 85+</td>
+          <td><strong>考六级 480+</strong></td>
+          <td><strong>报 1–2 项 A 类赛</strong></td>
+          <td><strong>进导师组</strong></td>
+          <td>CV 初稿 / 材料留痕</td>
+        </tr>
+        <tr>
+          <td><span class="phase-tag phase-future">大三</span></td>
+          <td>冲刺展翼</td>
+          <td>稳排名 / 补短板</td>
+          <td>刷高六级 / 备托福（留学备选）</td>
+          <td>冲国奖 / 省奖落地</td>
+          <td>出成果 / 论文初稿</td>
+          <td>夏令营 CV/PS/推荐信</td>
+        </tr>
+        <tr>
+          <td><span class="phase-tag phase-future">大四</span></td>
+          <td>决胜腾飞</td>
+          <td>最终排名锁定</td>
+          <td>如需则补语言</td>
+          <td>奖项入材料</td>
+          <td>论文/项目入材料</td>
+          <td>夏令营→预推免→系统填报</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== 周打卡跟踪 ====== -->
+<div class="card">
+  <div class="card-title">
+    <div class="icon icon-amber">7</div>
+    本周学习打卡
+  </div>
+  <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">点击日期标记当日完成保研相关任务（复习/竞赛/科研/英语）。每周一自动重置。</p>
+  <div class="week-labels">
+    <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
+  </div>
+  <div class="week-grid" id="weekGrid">
+    <div class="day-cell done" data-day="1" title="已完成">✓</div>
+    <div class="day-cell done" data-day="2" title="已完成">✓</div>
+    <div class="day-cell today" data-day="3" title="今天">三</div>
+    <div class="day-cell empty" data-day="4" title="点击标记完成">四</div>
+    <div class="day-cell empty" data-day="5" title="点击标记完成">五</div>
+    <div class="day-cell empty" data-day="6" title="点击标记完成">六</div>
+    <div class="day-cell empty" data-day="7" title="点击标记完成">日</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle;"></span> 已完成</span>
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--primary);margin-right:4px;vertical-align:middle;"></span> 今天</span>
+    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border:1px dashed var(--border);margin-right:4px;vertical-align:middle;"></span> 待完成</span>
+  </div>
+</div>
+
+<!-- ====== 给家长看的摘要 ====== -->
+<div class="card">
+  <div class="parent-box">
+    <h3>📋 给家长的摘要</h3>
+    <ul class="parent-points">
+      <li><strong>孩子现状：</strong>河南大学软件工程大二男生，大一下均分 85.82，四级 564 分，成绩良好，无挂科。基础不错。</li>
+      <li><strong>保研可行性：</strong>可行。河南大学是双一流高校，有推免资格。按目前成绩趋势，保持专业前 15–20% 可获本校推免资格。</li>
+      <li><strong>当前最急的三件事：</strong>① 考六级（保研硬门槛）；② 参加学科竞赛（计算机类 A 类赛）；③ 进导师课题组做科研。这三件事决定了他能不能从"有资格"变成"有好去处"。</li>
+      <li><strong>时间线：</strong>现在是<strong>大二上学期——最关键的窗口期</strong>。大二大三两年决定一切。大四上（2028 年 9–10 月）走完推免流程，2028 年 9 月入学读研。</li>
+      <li><strong>费用预估：</strong>保研本身几乎零费用（只有报名费和交通费），比考研报班（3000–2 万）和留学（年均 20–50 万）都便宜得多。关键是前两年的投入——时间和精力。</li>
+      <li><strong>家长能帮的：</strong>① 关注孩子六级报名和考试时间；② 鼓励他参加竞赛（别觉得"没用"）；③ 不给他额外压力——他已经走在正轨上了。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====== 操作按钮 ====== -->
+<div class="card" style="text-align:center;">
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">需要调整方案或有新成绩/新情况？随时联系翟老师更新工作台。</p>
+  <div class="btn-group" style="justify-content:center;">
+    <a class="btn btn-primary" href="#" onclick="alert('请联系翟老师更新进度')">更新成绩</a>
+    <a class="btn btn-outline" href="#" onclick="alert('可导出PDF版本')">导出方案</a>
+  </div>
+</div>
+
+<div class="footer">
+  <p>尹思辰 &middot; 保研规划工作台 &copy; 2026 芊芯教育规划 | 基于《大学规划路径》方法论生成</p>
+  <p style="margin-top:4px;">数据来源：学生成绩单 + 高顿/后保研/保研高途行业资料 | 具体以当年官方政策为准</p>
+</div>
+
+</div><!-- /.container -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Radar chart
+const ctx = document.getElementById('radarChart');
+if(ctx){
+  new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['绩点/排名','英语','竞赛','科研','论文','综合素质'],
+      datasets:[{
+        label:'当前水平',
+        data:[75,55,20,10,0,40],
+        backgroundColor:'rgba(26,86,168,.12)',
+        borderColor:'#1a56a8',
+        borderWidth:2,
+        pointBackgroundColor:'#1a56a8',
+        pointRadius:4,
+        pointHoverRadius:6
+      },{
+        label:'保研目标',
+        data:[85,80,70,60,40,65],
+        backgroundColor:'rgba(29,122,59,.08)',
+        borderColor:'#1d7a3b',
+        borderWidth:1.5,
+        borderDash:[5,3],
+        pointBackgroundColor:'#1d7a3b',
+        pointRadius:3
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      scales:{
+        r:{begin:0,max:100,ticks:{stepSize:20,font:{size:10}},pointLabels:{font:{size:11}}}
+      },
+      plugins:{legend:{labels:{font:{size:11},boxWidth:12}}}
+    }
+  });
+}
+
+// Week grid toggle
+document.getElementById('weekGrid').addEventListener('click',function(e){
+  const cell=e.target.closest('.day-cell');
+  if(!cell||cell.classList.contains('today'))return;
+  cell.classList.toggle('done');
+  cell.classList.toggle('empty');
+  if(cell.classList.contains('done')){
+    cell.textContent='✓';
+  }else{
+    cell.textContent=cell.dataset.day==='4'?'四':cell.dataset.day==='5'?'五':cell.dataset.day==='6'?'六':'日';
+  }
+  saveWeekProgress();
+});
+
+function saveWeekProgress(){
+  const cells=document.querySelectorAll('#weekGrid .day-cell');
+  const state=[];
+  cells.forEach(c=>state.push(c.classList.contains('done')?1:0));
+  localStorage.setItem('yinsichen_baoyan_week_'+getWeekKey(),JSON.stringify(state));
+}
+
+function loadWeekProgress(){
+  const saved=localStorage.getItem('yinsichen_baoyan_week_'+getWeekKey());
+  if(!saved)return;
+  const state=JSON.parse(saved);
+  const cells=document.querySelectorAll('#weekGrid .day-cell');
+  cells.forEach((c,i)=>{
+    if(state[i]&&!c.classList.contains('today')){
+      c.classList.remove('empty');c.classList.add('done');c.textContent='✓';
+    }
+  });
+}
+
+function getWeekKey(){
+  const d=new Date();
+  return d.getFullYear()+'-W'+String(Math.ceil(d.getDate()/7)).padStart(2,'0');
+}
+
+loadWeekProgress();
+</script>
+</body>
+</html>
