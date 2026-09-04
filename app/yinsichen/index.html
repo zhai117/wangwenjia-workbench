@@ -172,7 +172,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <div class="header-meta">
     <span>四级 564 分</span>
     <span>大一下均分 85.82</span>
-    <span>学分 33.0 / 绩点 49.37</span>
+    <span>学分 33.0 · 平均 GPA ≈3.5（满分 4.0）</span>
     <span>更新于 2026-09-04</span>
   </div>
 </div>
@@ -195,8 +195,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
       <div class="metric-label">加权平均分</div>
     </div>
     <div class="metric">
-      <div class="metric-value good">49.37</div>
-      <div class="metric-label">获得绩点</div>
+      <div class="metric-value good">≈3.5</div>
+      <div class="metric-label">平均 GPA（满分 4.0）</div>
     </div>
     <div class="metric">
       <div class="metric-value warn">564</div>
@@ -209,7 +209,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
   <div style="margin-top:14px;font-size:13px;">
     <p style="margin-bottom:6px;"><strong>成绩分析：</strong>大一下学期 33 学分全部通过，无挂科。已见课程：思想道德与法治 A-（3 学分）、学术英语 A-（2 学分）、大学体育 A。整体表现良好，处于保研竞争的有利位置。</p>
-    <p style="color:var(--text-muted);font-size:12px;">注：以上为 2025-2026 学年第二学期（大一下）部分成绩。完整大一学年 GPA 需结合上学期成绩计算。保研资格通常看前 6 学期总排名。</p>
+    <p style="color:var(--text-muted);font-size:12px;">注：河南大学采用<b>「动态学分绩点制，满分 4.0」</b>——课程绩点按该课在班级里的<b>名次比例</b>折算（A=前10%=4.0、A-=前30%=3.7、B+=前45%=3.3、B=前60%=3.0，依次递减），并非按卷面分直接算。平均学分绩点 GPA = 学分绩点之和 ÷ 学分数之和。图中 GPA≈3.5 为按均分 85.82 与已知 A-/A 成绩的<b>估算值</b>，精确值需尹思辰提供官方成绩单（含名次比例）后替换。保研资格通常看前 6 学期总排名。</p>
   </div>
 </div>
 
@@ -530,7 +530,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">需要调整方案或有新成绩/新情况？随时联系翟老师更新工作台。</p>
   <div class="btn-group" style="justify-content:center;">
     <a class="btn btn-primary" href="#" onclick="alert('请联系翟老师更新进度')">更新成绩</a>
-    <a class="btn btn-outline" href="#" onclick="alert('可导出PDF版本')">导出方案</a>
+    <a class="btn btn-outline" href="#" onclick="exportLongImage()">导出长图</a>
   </div>
 </div>
 
@@ -542,6 +542,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 </div><!-- /.container -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // Radar chart
 const ctx = document.getElementById('radarChart');
@@ -637,6 +638,43 @@ if(ctx){
 
   loadState();
 })();
+
+// 导出长图：把整个工作台截成一张 PNG，方便发微信
+function exportLongImage(){
+  const target = document.querySelector('.container');
+  if(!target) return;
+  const btn = document.activeElement;
+  const orig = btn ? btn.textContent : '';
+  if(btn){ btn.textContent = '生成中…'; btn.style.pointerEvents = 'none'; }
+  if(typeof html2canvas === 'undefined'){
+    alert('截图组件未加载，请检查网络后重试');
+    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+    return;
+  }
+  // 滚动到顶部，保证整页都截到
+  const prevScroll = window.scrollY;
+  window.scrollTo(0, 0);
+  html2canvas(target, {
+    scale: 2,
+    backgroundColor: '#F4F1EA',
+    useCORS: true,
+    windowWidth: target.scrollWidth,
+    scrollY: -prevScroll
+  }).then(function(canvas){
+    const link = document.createElement('a');
+    const d = new Date();
+    const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+    link.download = '尹思辰保研规划_' + ymd + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+    window.scrollTo(0, prevScroll);
+  }).catch(function(err){
+    alert('导出失败：' + (err && err.message ? err.message : err));
+    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+    window.scrollTo(0, prevScroll);
+  });
+}
 </script>
 </body>
 </html>
