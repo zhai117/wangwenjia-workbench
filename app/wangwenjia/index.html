@@ -326,6 +326,13 @@ function setSession(s){ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); els
 const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyeGRvY2h0c3F4cmtwdGlxc21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTE4MDEsImV4cCI6MjEwMzQ2NzgwMX0.lUGLZAhx3N5julQHSNHxEmgTXDpEAakyjp0NQpF0YLw";
 const WRITE_PWD = "Xiang19860325!!";            // 旧写密码（数据库升级前兼容王文嘉）
+
+// 学员名册：老师下拉框的数据源。有自定义工作台的填 url（选中的时候跳转），没有的留空（本页内切换数据）
+// 新增学员只需在这里加一行，不用插种子数据
+const STUDENT_ROSTER = [
+  { name: "王文嘉", url: null },                      // 考研进度台，本页内切换
+  { name: "尹思辰", url: "/app/yinsichen/" }          // 保研规划台，独立页面
+];
 const SUPABASE_TABLE = "wangwenjia_checkins";
 const WEEKLY_TABLE = "wangwenjia_weekly";
 
@@ -395,6 +402,8 @@ async function loadData(){
           FULL.students[sid].weekly[r.wk]=r.payload;
         });
         const sids=Object.keys(FULL.students);
+        // 合并名册中学员（解决新学员无数据时不显示的问题）
+        STUDENT_ROSTER.forEach(function(r){ if(sids.indexOf(r.name)<0) sids.push(r.name); });
         if(!viewSid || sids.indexOf(viewSid)<0) viewSid=sids[0];
         D = sliceStudent(viewSid);
         buildStudentSwitch(sids);
@@ -526,7 +535,14 @@ function buildStudentSwitch(sids){
     const o=document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o);
   });
   sel.value=viewSid;
-  sel.onchange=function(){ viewSid=this.value; D=sliceStudent(viewSid); renderAll(); };
+  sel.onchange=function(){
+    const name=this.value;
+    // 查名册：有独立工作台的学员跳转到对应页面
+    const rosterEntry=STUDENT_ROSTER.find(function(r){ return r.name===name; });
+    if(rosterEntry && rosterEntry.url){ window.location.href=rosterEntry.url; return; }
+    // 没有独立页面的学员，本页内切换数据
+    viewSid=name; D=sliceStudent(viewSid); renderAll();
+  };
 }
 function doLogout(){
   setSession(null); me=null; FULL=null; viewSid=null;
