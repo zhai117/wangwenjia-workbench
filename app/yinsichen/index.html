@@ -109,6 +109,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .day-cell.empty{background:transparent;border:1px dashed var(--border);color:var(--text-muted);}
 .week-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:4px;}
 
+/* checklist-style checkin */
+.chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.chk-item:hover{border-color:var(--primary);}
+.chk-item input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;margin-top:1px;accent-color:var(--primary);cursor:pointer;}
+.chk-item .chk-text{font-size:13px;line-height:1.5;color:var(--text);}
+.chk-item:has(input:checked){background:var(--success-light);border-color:var(--success);}
+.chk-item:has(input:checked) .chk-text{text-decoration:line-through;color:var(--text-muted);}
+
 /* parent summary */
 .parent-box{background:linear-gradient(135deg,#f8f6f0,#fff8ee);border:1px solid #e8dcc0;border-radius:var(--radius);padding:18px 20px;}
 .parent-box h3{font-size:14px;color:#7a5c00;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
@@ -234,20 +242,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     目标院校定位
   </div>
   <div style="font-size:13px;margin-bottom:12px;">
-    河南大学（双一流省属重点）软件工程专业，保研率约 10–15%。按当前成绩趋势，若保持专业排名前 15–20%，可获得本校推免资格。
+    河南大学（双一流省属重点）软件工程专业，保研率约 10–15%。按当前成绩趋势，若保持专业排名前 15% 并有竞赛/科研加持，<b>目标直冲 211/985 院校</b>——保研不是"留在本校"，而是用实力换更好的平台。
   </div>
   <div class="metrics" style="grid-template-columns:repeat(3,1fr);">
     <div class="metric" style="background:var(--success-light);">
       <div class="metric-value good" style="font-size:18px;">保底</div>
-      <div class="metric-label">河南大学本校<br><span style="color:var(--success);font-weight:500;">概率高</span></div>
+      <div class="metric-label">同层次211<br><span style="color:var(--success);font-weight:500;">郑州大学/武汉理工等</span></div>
     </div>
     <div class="metric" style="background:var(--info-light);">
       <div class="metric-value" style="font-size:18px;color:var(--info);">匹配</div>
-      <div class="metric-label">同层次211/双一流<br><span style="color:var(--info);font-weight:500;">需冲竞赛+科研</span></div>
+      <div class="metric-label">中上游985/强势211<br><span style="color:var(--info);font-weight:500;">需竞赛国奖+科研</span></div>
     </div>
     <div class="metric" style="background:var(--warning-light);">
       <div class="metric-value warn" style="font-size:18px;">冲刺</div>
-      <div class="metric-label">中上游985/强势211<br><span style="color:var(--warning);font-weight:500;">需顶级履历</span></div>
+      <div class="metric-label">C9/顶尖985<br><span style="color:var(--warning);font-weight:500;">需顶级履历+论文</span></div>
     </div>
   </div>
 </div>
@@ -465,29 +473,41 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
 </div>
 
-<!-- ====== 周打卡跟踪 ====== -->
+<!-- ====== 本周学习打卡 ====== -->
 <div class="card">
     <div class="card-title">
       <div class="icon icon-amber">8</div>
-      本周学习打卡
+      本周学习打卡 · 大二上（当前阶段）
   </div>
-  <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">点击日期标记当日完成保研相关任务（复习/竞赛/科研/英语）。每周一自动重置。</p>
-  <div class="week-labels">
-    <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span>
+  <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">以下是根据你当前阶段（大二上·保研蓄能期）生成的<strong>本周必做任务</strong>。每天完成对应项后勾选，每周一自动重置。数据保存在本机浏览器中。</p>
+
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:10px 0 6px;">📖 今日必做（每日循环）</div>
+  <div id="dailyChecklist" style="display:flex;flex-direction:column;gap:8px;">
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="daily" data-id="english"> <span class="chk-text"><b>英语</b> — 背单词 50 个 + 做 1 篇阅读/听力（六级备考）</span></label>
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="daily" data-id="course"> <span class="chk-text"><b>专业课</b> — 复习/预习当天核心课 1 小时以上（数据结构/算法等）</span></label>
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="daily" data-id="algorithm"> <span class="chk-text"><b>算法训练</b> — 刷 1–2 道 LeetCode / 蓝桥杯真题（为竞赛打底）</span></label>
   </div>
-  <div class="week-grid" id="weekGrid">
-    <div class="day-cell done" data-day="1" title="已完成">✓</div>
-    <div class="day-cell done" data-day="2" title="已完成">✓</div>
-    <div class="day-cell today" data-day="3" title="今天">三</div>
-    <div class="day-cell empty" data-day="4" title="点击标记完成">四</div>
-    <div class="day-cell empty" data-day="5" title="点击标记完成">五</div>
-    <div class="day-cell empty" data-day="6" title="点击标记完成">六</div>
-    <div class="day-cell empty" data-day="7" title="点击标记完成">日</div>
+
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:14px 0 6px;">🎯 本周专项（周内完成即可）</div>
+  <div id="weeklyChecklist" style="display:flex;flex-direction:column;gap:8px;">
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="weekly" data-id="contest-reg"> <span class="chk-text"><b>竞赛报名</b> — 查询蓝桥杯/服务外包大赛报名通知，确认截止时间</span></label>
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="weekly" data-id="teacher"> <span class="chk-text"><b>联系导师</b> — 给 1 位软件工程/AI 方向导师发邮件或面谈，表达进组意愿</span></label>
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="weekly" data-id="cet6-reg"> <span class="chk-text"><b>六级报名</b> — 确认下次六级报名时间，提前在官网注册账号</span></label>
+    <label class="chk-item"><input type="checkbox" class="chk" data-cat="weekly" data-id="cv"> <span class="chk-text"><b>材料留痕</b> — 整理本周学习笔记/代码/竞赛进展，更新到 CV 初稿</span></label>
   </div>
+
+  <div style="margin-top:14px;padding:12px;background:var(--info-light);border-radius:8px;font-size:12px;">
+    <div style="font-weight:600;color:var(--info);margin-bottom:4px;">💡 本周进度</div>
+    <div id="weekProgress" style="display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;height:8px;background:#e2e2de;border-radius:4px;overflow:hidden;"><div id="progressBar" style="height:100%;width:0%;background:var(--primary);border-radius:4px;transition:width .3s;"></div></div>
+      <span id="progressText" style="font-size:12px;color:var(--text-muted);white-space:nowrap;">0 / 7 项</span>
+    </div>
+  </div>
+
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
     <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--success);margin-right:4px;vertical-align:middle;"></span> 已完成</span>
-    <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--primary);margin-right:4px;vertical-align:middle;"></span> 今天</span>
     <span style="font-size:11px;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border:1px dashed var(--border);margin-right:4px;vertical-align:middle;"></span> 待完成</span>
+    <span style="font-size:11px;color:var(--text-muted);margin-left:auto;">📌 每周一自动重置</span>
   </div>
 </div>
 
@@ -500,7 +520,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
       <li><strong>保研可行性：</strong>可行。河南大学是双一流高校，有推免资格。按目前成绩趋势，保持专业前 15–20% 可获本校推免资格。</li>
       <li><strong>当前最急的三件事：</strong>① 考六级（保研硬门槛）；② 参加学科竞赛（计算机类 A 类赛）；③ 进导师课题组做科研。这三件事决定了他能不能从"有资格"变成"有好去处"。</li>
       <li><strong>时间线：</strong>现在是<strong>大二上学期——最关键的窗口期</strong>。大二大三两年决定一切。大四上（2028 年 9–10 月）走完推免流程，2028 年 9 月入学读研。</li>
-      <li><strong>费用预估：</strong>保研本身几乎零费用（只有报名费和交通费），比考研报班（3000–2 万）和留学（年均 20–50 万）都便宜得多。关键是前两年的投入——时间和精力。</li>
       <li><strong>家长能帮的：</strong>① 关注孩子六级报名和考试时间；② 鼓励他参加竞赛（别觉得"没用"）；③ 不给他额外压力——他已经走在正轨上了。</li>
     </ul>
   </div>
@@ -562,45 +581,62 @@ if(ctx){
   });
 }
 
-// Week grid toggle
-document.getElementById('weekGrid').addEventListener('click',function(e){
-  const cell=e.target.closest('.day-cell');
-  if(!cell||cell.classList.contains('today'))return;
-  cell.classList.toggle('done');
-  cell.classList.toggle('empty');
-  if(cell.classList.contains('done')){
-    cell.textContent='✓';
-  }else{
-    cell.textContent=cell.dataset.day==='4'?'四':cell.dataset.day==='5'?'五':cell.dataset.day==='6'?'六':'日';
+// Check-in: checkboxes + progress bar + localStorage
+(function(){
+  const dailyChks = document.querySelectorAll('#dailyChecklist .chk');
+  const weeklyChks = document.querySelectorAll('#weeklyChecklist .chk');
+  const allChks = document.querySelectorAll('.chk-item .chk');
+  const bar = document.getElementById('progressBar');
+  const txt = document.getElementById('progressText');
+
+  function updateProgress(){
+    let done = 0;
+    allChks.forEach(function(c){ if(c.checked) done++; });
+    const total = allChks.length;
+    const pct = total > 0 ? Math.round(done/total*100) : 0;
+    if(bar){ bar.style.width = pct+'%'; }
+    if(txt){ txt.textContent = done + ' / ' + total + ' 项 (' + pct+'%)'; }
+    // save
+    var state = {};
+    allChks.forEach(function(c){ state[c.dataset.cat+'__'+c.dataset.id] = c.checked ? 1 : 0; });
+    localStorage.setItem('yinsichen_baoyan_chk_'+getWeekKey(), JSON.stringify(state));
   }
-  saveWeekProgress();
-});
 
-function saveWeekProgress(){
-  const cells=document.querySelectorAll('#weekGrid .day-cell');
-  const state=[];
-  cells.forEach(c=>state.push(c.classList.contains('done')?1:0));
-  localStorage.setItem('yinsichen_baoyan_week_'+getWeekKey(),JSON.stringify(state));
-}
-
-function loadWeekProgress(){
-  const saved=localStorage.getItem('yinsichen_baoyan_week_'+getWeekKey());
-  if(!saved)return;
-  const state=JSON.parse(saved);
-  const cells=document.querySelectorAll('#weekGrid .day-cell');
-  cells.forEach((c,i)=>{
-    if(state[i]&&!c.classList.contains('today')){
-      c.classList.remove('empty');c.classList.add('done');c.textContent='✓';
-    }
+  allChks.forEach(function(c){
+    c.addEventListener('change', updateProgress);
   });
-}
 
-function getWeekKey(){
-  const d=new Date();
-  return d.getFullYear()+'-W'+String(Math.ceil(d.getDate()/7)).padStart(2,'0');
-}
+  // load saved state
+  function loadState(){
+    var saved = localStorage.getItem('yinsichen_baoyan_chk_'+getWeekKey());
+    if(!saved) return;
+    try{
+      var state = JSON.parse(saved);
+      allChks.forEach(function(c){
+        var key = c.dataset.cat+'__'+c.dataset.id;
+        if(state[key]){
+          c.checked = true;
+          // trigger visual update via parent class
+          c.dispatchEvent(new Event('change'));
+        }
+      });
+      // re-calc progress after loading
+      let done = 0;
+      allChks.forEach(function(c){ if(c.checked) done++; });
+      const total = allChks.length;
+      const pct = total > 0 ? Math.round(done/total*100) : 0;
+      if(bar){ bar.style.width = pct+'%'; }
+      if(txt){ txt.textContent = done + ' / ' + total + ' 项 (' + pct+'%)'; }
+    }catch(e){}
+  }
 
-loadWeekProgress();
+  function getWeekKey(){
+    var d = new Date();
+    return d.getFullYear()+'-W'+String(Math.ceil(d.getDate()/7)).padStart(2,'0');
+  }
+
+  loadState();
+})();
 </script>
 </body>
 </html>
