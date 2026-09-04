@@ -166,8 +166,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <div class="header-tags">
     <span class="tag">双一流高校</span>
     <span class="tag">计算机类</span>
-    <span class="tag">保研目标</span>
-    <span class="tag">2029年入学</span>
+    <span class="tag">2029年入学硕士</span>
   </div>
   <div class="header-meta">
     <span>四级 564 分</span>
@@ -536,7 +535,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 
 <div class="footer">
   <p>尹思辰 &middot; 保研规划工作台 &copy; 2026 芊芯教育规划 | 基于《大学规划路径》方法论生成</p>
-  <p style="margin-top:4px;">数据来源：学生成绩单 + 高顿/后保研/保研高途行业资料 | 具体以当年官方政策为准</p>
+  <p style="margin-top:4px;">数据来源：学生成绩单 + 芊芯教育规划整理 | 具体以当年官方政策为准</p>
 </div>
 
 </div><!-- /.container -->
@@ -661,28 +660,33 @@ function exportLongImage(){
   mark.innerHTML = '<span style="font-size:15px;font-weight:600;color:#F4F1EA;letter-spacing:.5px;">芊芯教育规划 · 翟老师 生成</span>'
     + '<span style="font-size:14px;color:#E2A06E;font-weight:600;">微信：qxgb985211</span>';
   target.appendChild(mark);
-  function removeMark(){ const m = document.getElementById('__export_mark'); if(m) m.remove(); }
-  html2canvas(target, {
-    scale: 2,
-    backgroundColor: '#F4F1EA',
-    useCORS: true,
-    windowWidth: target.scrollWidth,
-    scrollY: -prevScroll
-  }).then(function(canvas){
-    removeMark();
-    const link = document.createElement('a');
-    const d = new Date();
-    const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-    link.download = '尹思辰保研规划_' + ymd + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
-    window.scrollTo(0, prevScroll);
-  }).catch(function(err){
-    removeMark();
-    alert('导出失败：' + (err && err.message ? err.message : err));
-    if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
-    window.scrollTo(0, prevScroll);
+  // 强制浏览器重绘水印后再截图
+  mark.offsetHeight; // 触发 reflow
+  function removeMark(){ var m = document.getElementById('__export_mark'); if(m) m.remove(); }
+  // 用 requestAnimationFrame 确保下一帧（水印已渲染）再截图
+  requestAnimationFrame(function(){
+    html2canvas(target, {
+      scale: 2,
+      backgroundColor: '#F4F1EA',
+      useCORS: true,
+      windowWidth: target.scrollWidth,
+      scrollY: -prevScroll
+    }).then(function(canvas){
+      removeMark();
+      const link = document.createElement('a');
+      var d = new Date();
+      var ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+      link.download = '尹思辰保研规划_' + ymd + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+      window.scrollTo(0, prevScroll);
+    }).catch(function(err){
+      removeMark();
+      alert('导出失败：' + (err && err.message ? err.message : err));
+      if(btn){ btn.textContent = orig; btn.style.pointerEvents = ''; }
+      window.scrollTo(0, prevScroll);
+    });
   });
 }
 </script>
