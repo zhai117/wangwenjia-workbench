@@ -678,23 +678,23 @@ function exportLongImage(){
     var tw = Math.max(tw1, tw2);
     var th = fontSize * 1.4; // 行高约为字号的1.4倍
     var lineHeight = fontSize * 1.5; // 两行之间的行距
-    var gapX = tw * 3.5;   // 水平间距拉大，少铺一些
-    var gapY = th * 5;     // 垂直间距拉大
     var angle = -25 * Math.PI / 180; // 斜角 -25 度
-    // 从左上到右下斜着铺满
-    var cols = Math.ceil((W + H * Math.tan(-angle)) / gapX) + 2;
-    var rows = Math.ceil((H + W * Math.tan(angle)) / gapY) + 2;
-    for(var r = -rows/2; r < rows*1.5; r++){
-      for(var c = -cols/2; c < cols*1.5; c++){
-        var cx = c * gapX;
-        var cy = r * gapY;
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-        ctx.fillText(line1, 0, -lineHeight/2);
-        ctx.fillText(line2, 0, lineHeight/2);
-        ctx.restore();
-      }
+    // 整图只放 4 个水印，左右交错、纵向均匀分散
+    var positions = [
+      [W*0.30, H*0.12],
+      [W*0.70, H*0.38],
+      [W*0.30, H*0.64],
+      [W*0.70, H*0.90]
+    ];
+    for(var i=0; i<positions.length; i++){
+      var cx = positions[i][0];
+      var cy = positions[i][1];
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+      ctx.fillText(line1, 0, -lineHeight/2);
+      ctx.fillText(line2, 0, lineHeight/2);
+      ctx.restore();
     }
     ctx.restore();
     // 下载
