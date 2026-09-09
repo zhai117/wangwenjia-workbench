@@ -188,74 +188,86 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     <div class="icon icon-purple">1</div>
     保研综合成绩 · 官方计算方法（一步步拆解）
   </div>
-  <p style="font-size:13px;margin-bottom:12px;">来源：<b>河南大学软件学院《推免工作方案》</b>（依据校发〔2021〕14 号）。排序规则：按专业统一排名，<b>同分时按 10 门核心课成绩之和定先后</b>。</p>
+  <div style="background:#FDF0EC;border-left:4px solid var(--danger,#C0392B);border-radius:8px;padding:11px 13px;margin-bottom:12px;font-size:12.5px;line-height:1.9;">
+    <b style="color:#C0392B;">⚠️ 适用规则：建筑工程学院，不是软件学院。</b>尹思辰是软件工程（数智空间 / 工程智能软件），属软件学院与建筑工程学院<b>复合交叉培养、由建筑工程学院牵头管理</b>，推免执行《河南大学建筑工程学院优秀应届本科生推免办法》（2025 年 4 月，自 2026 年推免起施行）。<b>软件学院那套（学业 92.5% + 素质 7.5%）不适用。</b>
+  </div>
+  <p style="font-size:13px;margin-bottom:12px;">来源：<b>《河南大学建筑工程学院优秀应届本科生推免办法》</b>（学院官网 2025-04 发布，已下载官方原文），依据校发〔2021〕14 号。排序规则：按专业人数分配指标<b>按综合成绩从高到低推荐</b>。</p>
 
   <div style="background:var(--primary,#20303D);color:#F4F1EA;border-radius:10px;padding:14px 16px;text-align:center;font-size:15px;font-weight:700;letter-spacing:.5px;">
-    综合成绩（100）= 学业成绩（92.5）+ 综合素质（7.5）
+    总成绩（100）= 专业加权平均成绩 × <span style="color:#F5C9A8;">90%</span> + 综合素质加分（<span style="color:#F5C9A8;">≤10 分</span>）
   </div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ① 步 · 学业成绩 92.5 分 = 三块拼成</div>
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ① 步 · 专业加权平均成绩（占 90 分，绝对主战场）</div>
+  <div style="background:#F4F1EA;border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:10px;">
+    专业加权平均成绩 = <b>∑（必修课成绩 × 学分 + 限选课成绩 × 学分）÷（必修课总学分 + 限选课总学分）</b>
+  </div>
   <div class="matrix"><table>
-    <thead><tr><th>构成</th><th>满分</th><th>怎么算</th></tr></thead>
+    <thead><tr><th style="width:22%">课程范围</th><th style="width:14%">是否计入</th><th>说明</th></tr></thead>
     <tbody>
-      <tr><td><b>课程综合成绩</b></td><td>85</td><td>所有课程加权平均 Σ(成绩×学分)÷Σ学分 ×85%。<b>公选课不计分</b>，但须修满 8 学分才有推免资格</td></tr>
-      <tr><td><b>专业核心课</b></td><td>7</td><td>下方 10 门核心课的加权平均 ×7%</td></tr>
-      <tr><td><b>校企合作课程</b></td><td>0.5</td><td>企业/综合工程实践 ×0.5%</td></tr>
+      <tr><td>专业必修课</td><td><b style="color:#2F6B4F;">计入</b></td><td>学分权重最高，是拉分主力</td></tr>
+      <tr><td>公共必修课</td><td><b style="color:#2F6B4F;">计入</b></td><td>高数、英语、思政等</td></tr>
+      <tr><td>专业限选课</td><td><b style="color:#2F6B4F;">计入</b></td><td>—</td></tr>
+      <tr><td>公共限选课</td><td><b style="color:#2F6B4F;">计入</b></td><td>—</td></tr>
+      <tr><td>公共任选课</td><td><b style="color:#C0392B;">不计入</b></td><td>公选课不加分也不拉分，别指望刷它提分</td></tr>
     </tbody>
   </table></div>
-  <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">⚠️ <b>只按第一次修读成绩计算</b>——补考重修不吃香，每门课第一次就要考好。</div>
+  <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">⚠️ <b>只按第一次修读成绩计算</b>——补考重修不吃香，每门课第一次就要考好。建工口径<b>没有"10 门专业核心课"这一项</b>（那是软件学院规则）。</div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ② 步 · 10 门核心课名单（占 7 分，同分裁决依据）</div>
-  <div style="font-size:12.5px;line-height:2;">
-    C++程序设计 · 数据结构 · 计算机操作系统 · 计算机组成原理 · 计算机网络 · 数据库系统原理 · 人工智能技术 · 软件工程 · 软件体系结构 · 软件质量与测试
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ② 步 · 综合素质加分 ≤10 分 = 六块拼成</div>
+  <div class="matrix"><table>
+    <thead><tr><th>项目</th><th style="width:12%">封顶</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><b>① 专业竞赛</b></td><td><b>3</b></td><td>不同项目可累加；校级及以下不加分（详见第 ③ 步）</td></tr>
+      <tr><td>② 学术论文</td><td>2</td><td>SCI / SSCI / EI 或重要党报党刊 <b>+2</b>；北大中文核心 <b>+1.5</b>。限第一作者或通讯作者，第一通讯单位须为河南大学</td></tr>
+      <tr><td>③ 科研成果与科技发明</td><td>2</td><td>科研或创新项目：国家级 2 / 省部级 1 / 厅市校级 0.5；获奖成果国家级一等 2。<b>授权国家发明专利每项 +2</b>（仅政府财政资助的纵向项目）</td></tr>
+      <tr><td>④ 出国（境）交流</td><td>1</td><td>12 个月以上 +1，8–12 月 +0.8，4–8 月 +0.6，0.5–4 月 +0.4，1 周–0.5 月 +0.2</td></tr>
+      <tr><td>⑤ 荣誉称号</td><td>1</td><td>省级及以上（优秀团员 / 优秀学生干部 / 文明学生等）+1；校、市级 +0.5。<b>不含奖学金</b></td></tr>
+      <tr><td>⑥ 学生职务</td><td>1</td><td>校学生会主席团 1 / 院学生会主席 0.8 / 院副主席·年级长 0.6 / <b>班长·团支书·院部长 0.4</b> / 班委 0.2。任职需满一年，多职取最高</td></tr>
+    </tbody>
+  </table></div>
+  <div style="margin-top:8px;background:#FDF0EC;border-left:3px solid var(--danger,#C0392B);border-radius:8px;padding:10px 13px;font-size:12.5px;line-height:1.9;">
+    <b style="color:#C0392B;">建工没有的加分项（软件学院才有，别再按那套准备）：</b>❌ 英语六级（建工 0 分）❌ 大创独立项 ❌ 专业认证证书（华为/H3C 等 0 分）❌ 非专业类竞赛 ❌ <b>软件著作权（建工 0 分，只认授权国家发明专利）</b>❌ 校级竞赛（建工明确不加分）
   </div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ③ 步 · 综合素质 7.5 分 = 六块拼成</div>
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ③ 步 · 竞赛这 3 分怎么拿满</div>
   <div class="matrix"><table>
-    <thead><tr><th>项目</th><th>满分</th><th>说明</th></tr></thead>
+    <thead><tr><th>级别</th><th>一等奖</th><th>二等奖</th><th>三等奖</th><th>优秀奖</th></tr></thead>
     <tbody>
-      <tr><td><b>学科竞赛获奖</b></td><td><b>2.0</b></td><td>只认学院官方目录内的信息学科类竞赛（见下方竞赛规划卡）</td></tr>
-      <tr><td>大创项目结项</td><td>1.5</td><td>国家级：主持 +1.5、成员 +0.5；省级：主持 +0.5、成员 +0.2；校级：主持 +0.2</td></tr>
-      <tr><td>科研奖励</td><td>2.0</td><td>论文：北大核心及以上第一作者每篇 +0.5（限2篇）；发明专利第一发明人 +1.0；实用新型第一 +0.3；软著第一申请人 +0.1（每类限1项，产权须归河南大学）</td></tr>
-      <tr><td><b>英语六级</b></td><td><b>1.0</b></td><td>过线即得满分 1.0 —— <b>相当于一个省级一等奖，性价比之王</b></td></tr>
-      <tr><td>非专业类竞赛</td><td>0.5</td><td>演讲/征文/体育等，按学校教务处当年目录</td></tr>
-      <tr><td>专业认证证书</td><td>0.5</td><td>华为 HCIA/H3C/麒麟/OceanBase 等，高级 +0.5、中级 +0.25</td></tr>
+      <tr><td><b>全国竞赛</b></td><td><b>+2</b></td><td>+1.6</td><td>+1.2</td><td>+1</td></tr>
+      <tr><td>省级竞赛</td><td>+1</td><td>+0.8</td><td>+0.6</td><td>+0.5</td></tr>
+      <tr><td>校级及以下</td><td colspan="4" style="color:#C0392B;"><b>不加分（0）</b></td></tr>
     </tbody>
   </table></div>
+  <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">规则：不同项目可累加，同一项目只计最高奖；<b>有特等奖的，特等奖等同于一等奖</b>；团队参赛负责人或第一名满分，第 2/3/4 名分别 50%/40%/30%，第 5 名及以后 20%；<b>竞赛规定必须由 2–3 人组队的，第 2、3 名拿 80%</b>（2025.8 补充说明）；累计<b>封顶 3 分</b>。<br>级别认定：教务处 / 研究生院发布的文件或<b>建工资助竞赛名录</b>；未认定的按<b>获奖证书加盖公章的单位级别</b>算。</div>
+  <div style="margin-top:8px;background:#EFF5F1;border-left:3px solid #2F6B4F;border-radius:8px;padding:10px 13px;font-size:12.5px;line-height:1.9;">
+    <b style="color:#2F6B4F;">✅ 蓝桥杯已确认可加分：</b>在校级《本科生学科竞赛管理办法》(校发〔2020〕251 号) 竞赛名录<b>序号 13</b>，主办"工业和信息化部人才交流中心"，级别 <b>*国家级</b>，参赛范围"计算机类、软件类及其他相关专业"。按建工办法认定为全国竞赛 —— 一等 2 分 / 二等 1.6 / 三等 1.2 / 优秀奖 1。
+  </div>
 
-  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ④ 步 · 竞赛这 2 分怎么拿满</div>
-  <div class="matrix"><table>
-    <thead><tr><th>级别</th><th>一等奖</th><th>二等奖</th><th>三等奖</th></tr></thead>
-    <tbody>
-      <tr><td><b>国家级</b></td><td><b>+2.0</b></td><td>+1.5</td><td>+1.0</td></tr>
-      <tr><td>省级</td><td>+1.0</td><td>+0.7</td><td>+0.4</td></tr>
-      <tr><td>校级</td><td>+0.4</td><td>+0.2</td><td>+0.1</td></tr>
-    </tbody>
-  </table></div>
-  <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">规则：一等奖及以上统一按一等计；<b>团队赛有主持人时，主持人拿全额、其他成员只拿一半</b>→组队必须争主持人；累计加分<b>封顶 2 分</b>，堆数量不如堆级别。</div>
-
-  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ⑤ 步 · 尹思辰当前得分试算（按官方成绩单）</div>
+  <div style="font-size:13px;font-weight:600;color:var(--primary);margin:16px 0 8px;">第 ④ 步 · 尹思辰当前得分试算（建工口径 · 按官方成绩单）</div>
   <div style="margin-bottom:8px;font-size:12px;color:var(--text-muted);">换算说明：成绩单是等级制（A/B+/C-），官方未公布等级→百分制换算表。此处按「绩点×20+20」估算（A≈100 / B≈80 / C≈60），仅供参考：全年 GPA 3.29 ≈ <b>85.8 分</b>，大一下 GPA 3.49 ≈ <b>89.8 分</b>。</div>
   <div class="matrix"><table>
-    <thead><tr><th>项目</th><th>满分</th><th>当前已得</th><th>说明</th></tr></thead>
+    <thead><tr><th>项目</th><th style="width:12%">满分</th><th style="width:14%">当前已得</th><th>说明</th></tr></thead>
     <tbody>
-      <tr><td><b>课程综合成绩</b></td><td>85</td><td><b>≈72.9</b></td><td>全年 GPA 3.29 → 约 85.8 分 ×85%（若按大一下 3.49 算 ≈76.3）</td></tr>
-      <tr><td>专业核心课</td><td>7</td><td>0</td><td>大二大三才开课，<b>待拿 7 分</b></td></tr>
-      <tr><td>校企合作课程</td><td>0.5</td><td>0</td><td>高年级开课，待拿</td></tr>
-      <tr><td>学科竞赛</td><td>2.0</td><td>0</td><td>蓝桥杯 2026 年 10 月报名；省一 +1.0 / 国一 +2.0</td></tr>
-      <tr><td>大创 + 科研</td><td>3.5</td><td>0</td><td>进导师组后逐项拿（做个小系统申软著顺手 +0.1）</td></tr>
-      <tr><td><b>英语六级</b></td><td><b>1.0</b></td><td>0</td><td><b>2026 年 12 月考——最该先拿的 1 分</b></td></tr>
-      <tr><td>非专业竞赛 + 专业认证</td><td>1.0</td><td>0</td><td>华为 HCIA 等认证顺手拿</td></tr>
-      <tr><td><b>当前合计</b></td><td><b>100</b></td><td><b>≈72.9</b></td><td><b>待拿空间 27.1 分</b></td></tr>
+      <tr><td><b>专业加权平均成绩</b></td><td>90</td><td><b>≈77.2</b></td><td>全年 GPA 3.29 → 约 85.8 分 ×90%（若按大一下 3.49 算 ≈<b>80.8</b>）</td></tr>
+      <tr><td>① 专业竞赛</td><td>3</td><td>0</td><td>蓝桥杯 2026 年 10–11 月报名；省一 +1 / 国一 +2</td></tr>
+      <tr><td>② 学术论文</td><td>2</td><td>0</td><td>北大核心 1.5 / SCI·EI 2，需进导师组</td></tr>
+      <tr><td>③ 科研成果与科技发明</td><td>2</td><td>0</td><td>国家级创新项目 2 / 授权发明专利每项 2</td></tr>
+      <tr><td>④ 出国（境）交流</td><td>1</td><td>0</td><td>视机会，非必争</td></tr>
+      <tr><td>⑤ 荣誉称号</td><td>1</td><td>0</td><td>校市级 +0.5 / 省级 +1</td></tr>
+      <tr><td>⑥ 学生职务</td><td>1</td><td>0</td><td>班委 0.2 / 班长·团支书 0.4 / 院部长 0.4</td></tr>
+      <tr><td><b>当前合计</b></td><td><b>100</b></td><td><b>≈77.2</b></td><td><b>待拿空间：学业 12.8 + 素质 10 = 22.8 分</b></td></tr>
     </tbody>
   </table></div>
   <div style="margin-top:10px;background:#FBF6EF;border-left:3px solid #B05A33;border-radius:8px;padding:10px 13px;font-size:12.5px;line-height:1.9;">
-    <b>三年情景观演算：</b>① 课业保持大一下水平（≈89.8 分）→ 学业部分 ≈<b>83.1</b>；② + 六级 + 省一 → ≈<b>85.1</b>；③ 再冲国一 → ≈<b>86.1</b>。<br>
-    <b>提醒：综合成绩只用于专业内排名，绝对分不重要，比别人高才重要。</b>大家都在涨分时，核心课（7 分）和六级（1 分）就是分水岭；竞赛国奖是拉开差距的杀手锏。
+    <b>三年情景推演（假设学业维持大一下 ≈89.8 分水平）：</b><br>
+    ① 只保学业、不加任何分 → <b>80.8</b>；<br>
+    ② + 蓝桥杯省一(1.0) + 校级荣誉(0.5) + 班委(0.2) → ≈<b>82.5</b>；<br>
+    ③ + 蓝桥杯国一(2.0) + 国家级创新项目(2.0) + 班长(0.4) + 校级荣誉(0.5) → ≈<b>85.7</b>。<br>
+    <b>提醒：综合成绩只用于专业内排名，绝对分不重要，比别人高才重要。</b>建工口径下学业权重 90 分是绝对主战场，但素质分权重（10 分）高于软件学院（7.5 分），<b>竞赛 + 科研的边际收益更大，值得多投入</b>。
   </div>
 
   <div style="margin-top:14px;background:#FDF0EC;border-left:4px solid var(--danger,#C0392B);border-radius:8px;padding:11px 13px;font-size:12.5px;line-height:1.9;">
-    <b style="color:#C0392B;">🚧 硬门槛（一条不过就没资格）：</b>① 前三年总成绩排名<b>本专业前 40%</b>；② <b>无任何不及格记录</b>（挂科=出局）；③ 四级 ≥425（<b>已过：564 ✅</b>）；④ 无考试作弊、无违纪处分。
+    <b style="color:#C0392B;">🚧 硬门槛（一条不过就没资格）：</b>① 学习总成绩排名——<b>学术型推免生本专业前 20%</b>、<b>专业学位推免生前 40%</b>（⚠️ 建工特有：想保学硕门槛翻倍，先定方向）；② <b>无任何不及格门次</b>（挂科=出局）；③ 通过国家四级（<b>已过：564 ✅</b>）；④ 无考试作弊、学术造假、剽窃记录；⑤ 无任何违法违纪处分。
   </div>
 </div>
 
@@ -349,7 +361,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
       <div class="plan-num" data-page-node-id="bihhJajaS9mpBijr7oZVky">1</div>
       <div class="plan-text" data-page-node-id="qYMEAPe99ii5eHcQYTjMhb">
         <strong data-page-node-id="ZpVVptrmEdelgOzSN4asym">考六级，目标 480+ 冲 520+</strong><br data-page-node-id="EEHLa1qSZQ3jtsyIH0i7Jv">
-        <span style="color:var(--text-muted);font-size:12px;" data-page-node-id="A5ZaGHsdgOzW2091ylaSCG">四级 564 说明基础不错。六级是保研硬门槛——多数校要求 425+，好校要 480–520+。建议本学期（2026 下）或最迟 2027 上考出成绩。</span>
+        <span style="color:var(--text-muted);font-size:12px;" data-page-node-id="A5ZaGHsdgOzW2091ylaSCG">四级 564 说明基础不错。<b style="color:#C0392B;">注意：建工推免办法里六级不加分</b>（那是软件学院规则）。但六级对<b>推免复试、联系导师、外校夏令营</b>仍是硬通货，多数校要求 425+，好校要 480–520+。建议本学期（2026 下）或最迟 2027 上考出成绩。</span>
       </div>
       <span class="plan-priority pri-high" data-page-node-id="jZuFTvbtFjT3HwNKFhS8zx">紧急</span>
     </li>
@@ -394,7 +406,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     <div class="icon icon-amber" data-page-node-id="e6ZZJeWjnfvSVHISFL5Ss0">6</div>
     竞赛规划 · 保研加分竞赛推荐
   </div>
-  <p style="font-size:13px;margin-bottom:12px;" data-page-node-id="bO5HWnIEUZyuzh2nCHUj95">以下竞赛全部出自<b data-page-node-id="RF3khqgggqbhxeNPctHBRS">河南大学软件学院官方《推免工作方案》附件 · 学科竞赛目录</b>（26 项国家级 + 3 省级 + 1 校级，2026-09 官网核实），<b data-page-node-id="mGC4fvZGtCUwf6xHN4gH70">目录之外的竞赛一律不加分</b>。综合成绩里学业占 92.5%、竞赛最多占 2 分——<b data-page-node-id="UElYY8QR4CFBnqL81njiUA">成绩是主战场，竞赛是放大器。原则：每年深耕 1–2 项，优先计算机类对口赛。</b></p>
+  <p style="font-size:13px;margin-bottom:12px;" data-page-node-id="bO5HWnIEUZyuzh2nCHUj95">以下竞赛出自<b data-page-node-id="RF3khqgggqbhxeNPctHBRS">河南大学《本科生学科竞赛管理办法》(校发〔2020〕251 号) 官方竞赛名录</b>（2026-09 官网核实，<b>蓝桥杯为名录序号 13 · *国家级</b>）。<b data-page-node-id="mGC4fvZGtCUwf6xHN4gH70">建工口径：校级及以下不加分，只认国家级 / 省级</b>；不在名录内的比赛，按<b>获奖证书加盖公章的单位级别</b>认定。总成绩里学业占 90 分、竞赛最多占 3 分——<b data-page-node-id="UElYY8QR4CFBnqL81njiUA">成绩是主战场，竞赛是放大器。原则：每年深耕 1–2 项，优先计算机类对口赛，冲国家级奖项。</b></p>
 
   <div style="font-size:13px;font-weight:600;color:var(--primary);margin:14px 0 8px;" data-page-node-id="fwgeGMx6CUuGuwcquj9CQW">🥇 第一梯队 · 计算机类直接对口（必报）</div>
   <div class="matrix" data-page-node-id="Ka4nNrvxtbMG4NcaVoAPPC"><table data-page-node-id="Os2tnVJT2cCm4dQaUCAQzO">
@@ -599,7 +611,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     <ul class="parent-points" data-page-node-id="ZG3k32wTNZZ7h0cRQm3CBL">
       <li data-page-node-id="p4Y0rggEbPbdARebFGnfk9"><strong data-page-node-id="cNboBg23l2HtCFIcakkCfZ">孩子现状：</strong>河南大学软件工程大二男生，大一全年 GPA ≈3.29（61 学分，无挂科），四级 564 分。下学期从 3.03 升至 3.49，进步明显。基础不错。</li>
       <li data-page-node-id="LioxPCcaBuZWPtbOwuA7gW"><strong data-page-node-id="IzNEyBuChztmurHEN0fyyP">保研可行性：</strong>可行。河南大学是双一流高校，有推免资格。按目前成绩趋势，保持专业前 15–20% 可获本校推免资格。</li>
-      <li data-page-node-id="DsEIjQoeByg88Q4c60pcPh"><strong data-page-node-id="QMFOSOJtJ0SsNqgoy5fU7p">当前最急的三件事：</strong>① 考六级（保研硬门槛）；② 参加学科竞赛（计算机类 A 类赛）；③ 进导师课题组做科研。这三件事决定了他能不能从"有资格"变成"有好去处"。</li>
+      <li data-page-node-id="DsEIjQoeByg88Q4c60pcPh"><strong data-page-node-id="QMFOSOJtJ0SsNqgoy5fU7p">当前最急的三件事：</strong>① 冲专业排名（<b>学硕要前 20%、专硕前 40%</b>，先定方向）；② 参加学科竞赛冲国家级奖项（蓝桥杯 2026 年 10–11 月报名，<b>最多可加 3 分</b>）；③ 进导师课题组做科研（国家级创新项目 2 分 / 授权发明专利每项 2 分）。这三件事决定了他能不能从"有资格"变成"有好去处"。</li>
       <li data-page-node-id="kVDVydFfJQGoXPGGcA1aN4"><strong data-page-node-id="2HVGavrWbi1CGXoMP7m3gg">时间线：</strong>现在是<strong data-page-node-id="Hhh7dqjVOT38cxrCqJ4STk">大二上学期——最关键的窗口期</strong>。大二大三两年决定一切。大四上（2028 年 9–10 月）走完推免流程，<b data-page-node-id="Hc37rmjyQV0Cz2jispolHg">2029 年 9 月</b>入学读研。</li>
       <li data-page-node-id="RN6a2ja4kLWzYO5erC5Cvf"><strong data-page-node-id="QIFJGMzh5EyXyChxOVFq5g">家长能帮的：</strong>① 关注孩子六级报名和考试时间；② 鼓励他参加竞赛（别觉得"没用"）；③ 不给他额外压力——他已经走在正轨上了。</li>
     </ul>
