@@ -75,15 +75,6 @@
   .btn.ghost{background:#fff; color:var(--clay);}
   .tip{font-size:12px; color:var(--muted); margin-top:10px;}
   .save-ok{color:var(--green); font-size:13px; height:18px; margin-top:6px;}
-  .save-ok.saving{color:var(--amber);}
-  .save-ok.err{color:var(--red);}
-  /* 保存提醒浮层：顶部居中，成功绿/失败红，点击可关闭 */
-  #saveToast{position:fixed; top:14px; left:50%; transform:translateX(-50%) translateY(-24px);
-    background:#3f7d1e; color:#fff; padding:11px 18px; border-radius:12px; font-size:14px; font-weight:600;
-    box-shadow:0 8px 24px rgba(0,0,0,.20); z-index:90; opacity:0; pointer-events:none; max-width:92%;
-    text-align:center; transition:opacity .25s ease, transform .25s ease; cursor:pointer;}
-  #saveToast.show{opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto;}
-  #saveToast.err{background:var(--red);}
   /* ---- 每日笔记 + 图片上传 ---- */
   .subj-block{padding:8px 0; border-bottom:1px solid #F1EFE8;}
   .subj-block:last-of-type{border-bottom:none;}
@@ -127,7 +118,7 @@
   <div style="background:#fff;border-radius:14px;padding:26px 22px;width:300px;max-width:88vw;text-align:center;">
     <div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;">学员规划平台</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">请输入访问码进入</div>
-    <input id="codeInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="访问码" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;box-sizing:border-box;font-family:inherit;">
+    <input id="codeInput" type="text" autocomplete="off" placeholder="访问码" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;box-sizing:border-box;font-family:inherit;">
     <button id="codeBtn" class="btn" style="margin-top:12px;">进入</button>
     <div id="codeErr" style="color:var(--red);font-size:12px;height:16px;margin-top:8px;"></div>
     <div style="font-size:11px;color:var(--muted);margin-top:10px;">访问码由老师提供</div>
@@ -172,7 +163,6 @@
   </div>
   <button class="btn" id="saveBtn">保存今日记录</button>
   <div class="save-ok" id="saveOk"></div>
-  <div id="saveToast"></div>
 </div>
 
 <div class="card">
@@ -324,13 +314,13 @@ function load(){
 }
 function save(d){
   const sid = (me && me.student_id) ? me.student_id : "anon";
-  try{ localStorage.setItem(KEY+"_"+sid, JSON.stringify(d)); }catch(e){ /* 无痕/禁用 storage 时忽略，不影响使用 */ }
+  localStorage.setItem(KEY+"_"+sid, JSON.stringify(d));
 }
 
 // 会话（登录态）：{code, student_id, role, name, mode}
 const SKEY = "wb_session_wangwenjia_v1";
 function getSession(){ try{ return JSON.parse(localStorage.getItem(SKEY)); }catch(e){ return null; } }
-function setSession(s){ try{ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); }catch(e){ /* 无痕/禁用 storage 时忽略 */ } }
+function setSession(s){ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); }
 
 // 云端共享（升级版：读走 get_my_data，写走 save_wangwenjia，均按访问码服务端隔离）
 const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
@@ -454,10 +444,9 @@ async function fetchCloudLegacy(){
 }
 
 // 写入（按访问码；老师只读返回 teacher_readonly）
-// 返回 Promise<{ok:boolean, err?:string}>：ok===true 才代表云端真实写入成功
 function syncToSupabase(date, rec){
-  if (SUPABASE_URL.indexOf("YOUR_") === 0) return Promise.resolve({ ok:true, local:true });
-  if(READONLY()) return Promise.resolve({ ok:false, err:"只读模式不可保存" });
+  if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
+  if(READONLY()) return;
   const num = function(s){ return (s !== "" && s != null) ? parseFloat(s) : null; };
   const str = function(s){ return (s != null && s !== "") ? String(s) : null; };
   const row = {
@@ -473,33 +462,8 @@ function syncToSupabase(date, rec){
   const body = (me.mode === "modern")
     ? { p_access_code: me.code, p_checkin: row, p_weekly: { wk: wk, payload: payload } }
     : { p_write_pwd: WRITE_PWD, p_checkin: row, p_weekly: { wk: wk, payload: payload } };
-  return rpc("save_wangwenjia", body).then(function(j){
-    if(!j || j.__net__) return { ok:false, err:"网络异常，请检查网络后重试" };
-    if(j.ok === true) return { ok:true };
-    let msg = j.error || j.message || (j.code ? ("服务错误 "+j.code) : "云端写入被拒绝");
-    if(msg === "invalid_code") msg = "访问码失效，请退出后重新登录";
-    if(msg === "teacher_readonly") msg = "老师账号为只读，无法保存";
-    return { ok:false, err: msg };
-  });
+  rpc("save_wangwenjia", body).then(function(j){ if(j && j.error) console.warn("sync rejected:", j.error); });
 }
-// 保存状态文字（行内）：saving / ok / err
-function setSaveState(kind, text){
-  const el = document.getElementById("saveOk");
-  if(!el) return;
-  el.textContent = text || "";
-  el.className = "save-ok" + (kind ? (" " + kind) : "");
-}
-// 顶部浮层提醒：type="ok" 绿（自动消失）/ "err" 红（常驻，点击关闭）
-let _toastTimer = null;
-function showSaveToast(msg, type){
-  const t = document.getElementById("saveToast");
-  if(!t) return;
-  t.textContent = msg;
-  t.className = (type === "err" ? "err" : "ok") + " show";
-  if(_toastTimer){ clearTimeout(_toastTimer); _toastTimer = null; }
-  if(type !== "err"){ _toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2600); }
-}
-document.getElementById("saveToast") && document.getElementById("saveToast").addEventListener("click", function(){ this.classList.remove("show"); });
 // 仅推周数据（模考/复盘改动时调用，不碰每日记录行）
 function syncWeeklyNow(){
   if (SUPABASE_URL.indexOf("YOUR_") === 0) return;
@@ -523,6 +487,12 @@ async function doLogin(){
   if(!code){ showLoginError("请输入访问码"); return; }
   const v = await apiVerify(code);     // 现代模式优先
   if(v){
+    // 本页只认王文佳学员码或管理员(teacher)；其他学员码不匹配
+    const isOwner = (v.name && v.name.indexOf("王文佳")>=0) || (v.student_id && String(v.student_id).indexOf("王文佳")>=0);
+    if(v.role!=="teacher" && !isOwner){
+      showLoginError("访问码与本站不匹配，请使用王文佳学员对应访问码");
+      return;
+    }
     me={code:code, student_id:v.student_id, role:v.role, name:v.name, mode:"modern"};
     setSession(me);
     if(v.role==="teacher") viewSid=null;
@@ -596,6 +566,18 @@ async function boot(){
       await loadData(); applyRoleUI();
       return;
     }
+    // 门户跳转带过来的会话（同标签页免重复输码）
+    try{
+      const ps=JSON.parse(sessionStorage.getItem("qx_verified")||"null");
+      if(ps&&ps.student_id){
+        const isOwner=(ps.name&&ps.name.indexOf("王文佳")>=0)||(ps.student_id&&String(ps.student_id).indexOf("王文佳")>=0);
+        if(ps.role==="teacher"||isOwner){
+          me={code:ps.code||"", student_id:ps.student_id, role:ps.role, name:ps.name, mode:"modern"};
+          setSession(me);
+          await loadData(); applyRoleUI(); return;
+        }
+      }
+    }catch(e){}
     const sess=getSession();
     if(sess && sess.code){
       me=sess;
@@ -795,17 +777,9 @@ document.getElementById("saveBtn").addEventListener("click", function(){
     rec[k].note = ta.value;
   });
   rec.images = rec.images || [];   // 图片在上传时已存
-  D.checkins[curDate] = rec; save(D);                 // 本地先落盘，防刷新丢字
-  setSaveState("saving", "⏳ 正在保存到云端…");           // 立刻给出"进行中"反馈
-  syncToSupabase(curDate, rec).then(function(r){
-    if(r.ok){
-      setSaveState("ok", "✅ 已保存并同步到云端 · " + curDate);
-      showSaveToast("保存成功 · 已同步到云端 " + curDate, "ok");
-    }else{
-      setSaveState("err", "❌ 云端保存失败：" + (r.err || "请重试"));
-      showSaveToast("保存失败：" + (r.err || "请检查网络后重试"), "err");
-    }
-  });
+  D.checkins[curDate] = rec; save(D);
+  document.getElementById("saveOk").textContent = "已保存 " + curDate;
+  syncToSupabase(curDate, rec);
   renderLights();
 });
 
@@ -1170,5 +1144,9 @@ function renderTimeline(){
 curWeekIdx = Math.max(0, weekOf(curDate));
 boot();
 </script>
+<div style="text-align:center;font-size:12.5px;color:#8a93a0;padding:24px 16px 30px;line-height:1.9;">
+  芊芯教育 · 学员专属规划台<br>
+  <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">豫ICP备2026045738号</a>
+</div>
 </body>
 </html>
