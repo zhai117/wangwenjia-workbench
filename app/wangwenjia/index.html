@@ -498,6 +498,7 @@ async function doLogin(){
     }
     me={code:code, student_id:v.student_id, role:v.role, name:v.name, mode:"modern"};
     setSession(me);
+    localStorage.setItem("qx_verified", JSON.stringify(me));
     if(v.role==="teacher") viewSid=null;
     await loadData(); hideLogin(); applyRoleUI();
     return;
@@ -555,6 +556,7 @@ function buildStudentSwitch(sids){
 }
 function doLogout(){
   setSession(null); me=null; FULL=null; viewSid=null;
+  localStorage.removeItem("qx_verified");
   D={checkins:{},weekly:{}};
   showLogin();
 }
@@ -571,7 +573,7 @@ async function boot(){
     }
     // 门户跳转带过来的会话（同标签页免重复输码）
     try{
-      const ps=JSON.parse(sessionStorage.getItem("qx_verified")||"null");
+      const ps=JSON.parse(localStorage.getItem("qx_verified")||"null");
       if(ps&&ps.student_id){
         const isOwner=normName(ps.name).indexOf("王文嘉")>=0||normName(ps.student_id).indexOf("王文嘉")>=0;
         if(ps.role==="teacher"||isOwner){
