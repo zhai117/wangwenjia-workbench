@@ -340,6 +340,8 @@ let me = null;          // 当前会话
 let FULL = null;        // 老师视图：全部学员数据 {students:{sid:{checkins,weekly}}}
 let viewSid = null;     // 老师当前查看的学员
 function READONLY(){ return !!(me && me.role === "teacher"); }
+// 姓名同音字归一：防止 佳/嘉 等写法差异导致「访问码与本站不匹配」误判
+function normName(x){ return x ? String(x).replace(/佳/g,"嘉") : ""; }
 
 function rpc(path, body){
   return fetch(SUPABASE_URL + "/rest/v1/rpc/" + path, {
@@ -487,10 +489,10 @@ async function doLogin(){
   if(!code){ showLoginError("请输入访问码"); return; }
   const v = await apiVerify(code);     // 现代模式优先
   if(v){
-    // 本页只认王文佳学员码或管理员(teacher)；其他学员码不匹配
-    const isOwner = (v.name && v.name.indexOf("王文佳")>=0) || (v.student_id && String(v.student_id).indexOf("王文佳")>=0);
+    // 本页只认王文嘉学员码或管理员(teacher)；其他学员码不匹配
+    const isOwner = normName(v.name).indexOf("王文嘉")>=0 || normName(v.student_id).indexOf("王文嘉")>=0;
     if(v.role!=="teacher" && !isOwner){
-      showLoginError("访问码与本站不匹配，请使用王文佳学员对应访问码");
+      showLoginError("访问码与本站不匹配，请使用王文嘉学员对应访问码");
       return;
     }
     me={code:code, student_id:v.student_id, role:v.role, name:v.name, mode:"modern"};
@@ -570,7 +572,7 @@ async function boot(){
     try{
       const ps=JSON.parse(sessionStorage.getItem("qx_verified")||"null");
       if(ps&&ps.student_id){
-        const isOwner=(ps.name&&ps.name.indexOf("王文佳")>=0)||(ps.student_id&&String(ps.student_id).indexOf("王文佳")>=0);
+        const isOwner=normName(ps.name).indexOf("王文嘉")>=0||normName(ps.student_id).indexOf("王文嘉")>=0;
         if(ps.role==="teacher"||isOwner){
           me={code:ps.code||"", student_id:ps.student_id, role:ps.role, name:ps.name, mode:"modern"};
           setSession(me);
