@@ -897,11 +897,23 @@ function exportLongImage(){
   const THIS_STUDENT="尹思辰";
   function rpc(p,b){return fetch(SUPABASE_URL+"/rest/v1/rpc/"+p,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON},body:JSON.stringify(b)}).then(r=>r.json()).catch(e=>({__net__:true}));}
   async function verify(code){const j=await rpc("verify_access",{p_access_code:code});if(j&&j.student_id)return j;return null;}
-  function unlock(){document.body.classList.remove("app-locked");const g=document.getElementById("gate");if(g)g.style.display="none";}
+  function unlock(){document.body.classList.remove("app-locked");const g=document.getElementById("gate");if(g)g.style.display="none";ensureLogoutBtn();}
+  function ensureLogoutBtn(){
+    let b=document.getElementById("qxLogout");
+    if(!b){
+      b=document.createElement("button");
+      b.id="qxLogout";
+      b.textContent="退出登录";
+      b.style.cssText="position:fixed;top:12px;right:12px;z-index:9999;padding:7px 14px;border:none;border-radius:8px;background:var(--terra);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(32,48,61,.25);";
+      b.onclick=function(){ localStorage.removeItem("qx_verified"); location.href="/app/"; };
+      document.body.appendChild(b);
+    }
+    b.style.display="block";
+  }
   function showErr(m){const e=document.getElementById("gateErr");if(e)e.textContent=m;}
   // 门户跳转带过来的会话（同标签页免重复输码）
   try{
-    const ps=JSON.parse(sessionStorage.getItem("qx_verified")||"null");
+    const ps=JSON.parse(localStorage.getItem("qx_verified")||"null");
     if(ps&&ps.student_id){
       const ok = ps.role==="teacher" || (ps.name&&ps.name.indexOf(THIS_STUDENT)>=0) || (ps.student_id&&String(ps.student_id).indexOf(THIS_STUDENT)>=0);
       if(ok){ unlock(); return; }
@@ -917,6 +929,7 @@ function exportLongImage(){
     btn.disabled=false;
     if(v&&(v.role==="teacher"||(v.name&&v.name.indexOf(THIS_STUDENT)>=0)||(v.student_id&&String(v.student_id).indexOf(THIS_STUDENT)>=0))){
       unlock();
+      localStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
     }else if(v){
       showErr("访问码与本站不匹配，请使用您本人的访问码");
     }else{
