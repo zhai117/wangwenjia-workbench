@@ -45,6 +45,7 @@
   .menu a:hover{border-color:var(--terra); background:#fbf4ec;}
   .menu .tag{display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:3px;}
   .footer{margin-top:18px; font-size:11px; color:var(--muted);}
+  .btn-enter{display:block; text-decoration:none;}
 </style>
 </head>
 <body>
@@ -100,6 +101,38 @@ const err  = document.getElementById("err");
 
 function showErr(m){ err.textContent = m; }
 
+// ---------- 记住登录：令牌存 localStorage（重开浏览器/新标签页免重复输码） ----------
+function getQX(){ try{ return JSON.parse(localStorage.getItem("qx_verified")||"null"); }catch(e){ return null; } }
+function clearQX(){ localStorage.removeItem("qx_verified"); }
+function showLogout(){
+  let b=document.getElementById("qxLogout");
+  if(!b){
+    b=document.createElement("button");
+    b.id="qxLogout";
+    b.textContent="退出登录";
+    b.style.cssText="position:fixed;top:12px;right:12px;z-index:9999;padding:7px 14px;border:none;border-radius:8px;background:var(--terra);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(32,48,61,.25);";
+    b.onclick=function(){ clearQX(); location.href="/app/"; };
+    document.body.appendChild(b);
+  }
+  b.style.display="block";
+}
+function showStudentWelcome(name){
+  card.innerHTML='<div class="brand">芊芯教育规划</div>'
+    +'<div class="title">欢迎回来，'+name+'</div>'
+    +'<div class="sub">您已登录，点击下方进入您的规划台</div>'
+    +'<a class="btn btn-enter" href="'+STUDENT_PAGES[name]+'">进入'+name+'的规划台</a>'
+    +'<div class="tip">访问码由老师提供</div>';
+}
+// 重新打开门户时，若已记住登录则直接恢复视图（不再要求输码）
+function restore(){
+  const ps=getQX();
+  if(!ps||!ps.student_id) return;
+  if(ps.role==="teacher"){ showAdminMenu(); showLogout(); return; }
+  const name=matchStudent(ps);
+  if(name){ showStudentWelcome(name); showLogout(); }
+}
+restore();
+
 async function enter(){
   const code = (inp.value||"").trim();
   if(!code){ showErr("请输入访问码"); return; }
@@ -110,14 +143,14 @@ async function enter(){
 
   // 管理员：显示全部学员菜单
   if(v.role === "teacher"){
-    sessionStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
+    localStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
     showAdminMenu();
     return;
   }
   // 学员：按访问码路由到对应二级页
   const name = matchStudent(v);
   if(!name){ showErr("访问码与本站不匹配，请使用您本人的访问码"); return; }
-  sessionStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
+  localStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
   window.location.href = STUDENT_PAGES[name];
 }
 
