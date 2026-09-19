@@ -148,9 +148,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(153,60,29,.4)}50%{box-shadow:0 0 0 8px rgba(153,60,29,0)}}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+
+/* 访问码闸门 */
+.gate-overlay{position:fixed;inset:0;background:var(--paper,#F4F1EA);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.gate-card{background:#fff;border-radius:16px;padding:30px 26px;width:330px;max-width:90vw;text-align:center;box-shadow:0 12px 48px rgba(32,48,61,.16);}
+.gate-brand{font-size:12px;letter-spacing:2px;color:var(--primary,#B05A33);margin-bottom:10px;}
+.gate-title{font-size:18px;font-weight:600;color:var(--ink,#20303D);margin-bottom:6px;}
+.gate-sub{font-size:13px;color:#6b6258;margin-bottom:22px;}
+.gate-input{width:100%;padding:12px 14px;border:1px solid #e0d8c8;border-radius:10px;font-size:15px;text-align:center;font-family:inherit;outline:none;}
+.gate-input:focus{border-color:var(--primary,#B05A33);}
+.gate-btn{margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;background:var(--primary,#B05A33);color:#fff;font-size:15px;cursor:pointer;font-family:inherit;}
+.gate-btn:hover{background:#9a4d2c;}
+.gate-btn:disabled{opacity:.6;cursor:default;}
+.gate-err{color:#B05A33;font-size:12px;height:16px;margin-top:10px;}
+.gate-tip{font-size:11px;color:#6b6258;margin-top:12px;}
+body.app-locked .container{display:none !important;}
 </style>
 </head>
-<body data-page-node-id="5oi8vruyO3TCRJDPZKlEPF">
+<body class="app-locked" data-page-node-id="5oi8vruyO3TCRJDPZKlEPF">
+
+<div id="gate" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-brand">芊芯教育规划</div>
+    <div class="gate-title">尹思辰 · 保研规划工作台</div>
+    <div class="gate-sub">请输入访问码进入</div>
+    <input id="gateCode" class="gate-input" type="text" autocomplete="off" placeholder="访问码">
+    <button id="gateBtn" class="gate-btn">进入</button>
+    <div id="gateErr" class="gate-err"></div>
+    <div class="gate-tip">访问码由老师提供</div>
+  </div>
+</div>
 
 <div class="container" data-page-node-id="F6DSpGePGdN7BgAgOunVrK">
 
@@ -859,6 +886,45 @@ function exportLongImage(){
     window.scrollTo(0, prevScroll);
   });
 }
+</script>
+
+<script>
+// ---------- 访问码闸门（尹思辰页：认尹思辰码 或 管理员） ----------
+(function(){
+  const SUPABASE_URL="https://rrxdochtsqxrkptiqsmr.supabase.co";
+  const SUPABASE_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyeGRvY2h0c3F4cmtwdGlxc21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTE4MDEsImV4cCI6MjEwMzQ2NzgwMX0.lUGLZAhx3N5julQHSNHxEmgTXDpEAakyjp0NQpF0YLw";
+  const THIS_STUDENT="尹思辰";
+  function rpc(p,b){return fetch(SUPABASE_URL+"/rest/v1/rpc/"+p,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON},body:JSON.stringify(b)}).then(r=>r.json()).catch(e=>({__net__:true}));}
+  async function verify(code){const j=await rpc("verify_access",{p_access_code:code});if(j&&j.student_id)return j;return null;}
+  function unlock(){document.body.classList.remove("app-locked");const g=document.getElementById("gate");if(g)g.style.display="none";}
+  function showErr(m){const e=document.getElementById("gateErr");if(e)e.textContent=m;}
+  // 门户跳转带过来的会话（同标签页免重复输码）
+  try{
+    const ps=JSON.parse(sessionStorage.getItem("qx_verified")||"null");
+    if(ps&&ps.student_id){
+      const ok = ps.role==="teacher" || (ps.name&&ps.name.indexOf(THIS_STUDENT)>=0) || (ps.student_id&&String(ps.student_id).indexOf(THIS_STUDENT)>=0);
+      if(ok){ unlock(); return; }
+    }
+  }catch(e){}
+  const btn=document.getElementById("gateBtn"), inp=document.getElementById("gateCode");
+  if(!btn||!inp) return;
+  async function tryLogin(){
+    const code=(inp.value||"").trim();
+    if(!code){showErr("请输入访问码");return;}
+    btn.disabled=true; showErr("校验中…");
+    const v=await verify(code);
+    btn.disabled=false;
+    if(v&&(v.role==="teacher"||(v.name&&v.name.indexOf(THIS_STUDENT)>=0)||(v.student_id&&String(v.student_id).indexOf(THIS_STUDENT)>=0))){
+      unlock();
+    }else if(v){
+      showErr("访问码与本站不匹配，请使用您本人的访问码");
+    }else{
+      showErr("访问码不正确，请向老师索取");
+    }
+  }
+  btn.addEventListener("click",tryLogin);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")tryLogin();});
+})();
 </script>
 </body>
 </html>
