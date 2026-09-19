@@ -79,10 +79,12 @@ async function verify(code){
 // 学员 → 二级页面路由（新增学员在此加一行即可）
 const STUDENT_PAGES = {
   "尹思辰": "/app/yinsichen/",
-  "王文佳": "/app/wangwenjia/"
+  "王文嘉": "/app/wangwenjia/"
 };
+// 姓名同音字归一：防止 佳/嘉 等写法差异导致匹配失败
+function normName(x){ return x ? String(x).replace(/佳/g,"嘉") : ""; }
 function matchStudent(v){
-  const keys = [v.name, v.student_id].map(function(x){ return x ? String(x) : ""; });
+  const keys = [normName(v.name), normName(v.student_id)];
   for(var i=0;i<keys.length;i++){
     for(var name in STUDENT_PAGES){
       if(keys[i].indexOf(name) >= 0) return name;
