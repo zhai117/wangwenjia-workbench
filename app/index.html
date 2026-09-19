@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>学员专属入口 · 芊芯教育规划</title>
+<style>
+  :root{
+    --paper:#F4F1EA; --ink:#20303D; --terra:#B05A33; --terra-dark:#9a4d2c;
+    --muted:#6b6258; --line:#e0d8c8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .card{
+    background:#fff; border-radius:16px; padding:30px 26px; width:330px; max-width:90vw;
+    text-align:center; box-shadow:0 12px 48px rgba(32,48,61,.16);
+  }
+  .brand{font-size:12px; letter-spacing:2px; color:var(--terra); margin-bottom:10px;}
+  .title{font-size:18px; font-weight:600; margin-bottom:6px;}
+  .sub{font-size:13px; color:var(--muted); margin-bottom:22px;}
+  .input{
+    width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    font-size:15px; text-align:center; font-family:inherit; outline:none;
+  }
+  .input:focus{border-color:var(--terra);}
+  .btn{
+    margin-top:14px; width:100%; padding:12px; border:none; border-radius:10px;
+    background:var(--terra); color:#fff; font-size:15px; cursor:pointer; font-family:inherit;
+    transition:background .15s;
+  }
+  .btn:hover{background:var(--terra-dark);}
+  .btn:disabled{opacity:.6; cursor:default;}
+  .err{color:var(--terra); font-size:12px; height:16px; margin-top:10px;}
+  .tip{font-size:11px; color:var(--muted); margin-top:12px;}
+  .menu{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .menu a{
+    display:block; padding:14px; border:1px solid var(--line); border-radius:10px;
+    text-decoration:none; color:var(--ink); font-size:14px; font-weight:500;
+    transition:border-color .15s, background .15s;
+  }
+  .menu a:hover{border-color:var(--terra); background:#fbf4ec;}
+  .menu .tag{display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:3px;}
+  .footer{margin-top:18px; font-size:11px; color:var(--muted);}
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="brand">芊芯教育规划</div>
+    <div class="title">学员专属入口</div>
+    <div class="sub">请输入访问码，进入您的规划台</div>
+    <input id="code" class="input" type="text" autocomplete="off" placeholder="访问码" />
+    <button id="go" class="btn">进入</button>
+    <div id="err" class="err"></div>
+    <div class="tip">访问码由老师提供</div>
+  </div>
+
+<script>
+// ---------- 后台校验（与学员平台同一套） ----------
+const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJyeGRvY2h0c3F4cmtwdGlxc21yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTE4MDEsImV4cCI6MjEwMzQ2NzgwMX0.lUGLZAhx3N5julQHSNHxEmgTXDpEAakyjp0NQpF0YLw";
+
+function rpc(path, body){
+  return fetch(SUPABASE_URL + "/rest/v1/rpc/" + path, {
+    method:"POST",
+    headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON},
+    body: JSON.stringify(body)
+  }).then(function(r){ return r.json(); }).catch(function(e){ return {__net__:true}; });
+}
+async function verify(code){
+  const j = await rpc("verify_access", { p_access_code: code });
+  if(j && j.student_id) return j;
+  return null;
+}
+
+// 学员 → 二级页面路由（新增学员在此加一行即可）
+const STUDENT_PAGES = {
+  "尹思辰": "/app/yinsichen/",
+  "王文佳": "/app/wangwenjia/"
+};
+function matchStudent(v){
+  const keys = [v.name, v.student_id].map(function(x){ return x ? String(x) : ""; });
+  for(var i=0;i<keys.length;i++){
+    for(var name in STUDENT_PAGES){
+      if(keys[i].indexOf(name) >= 0) return name;
+    }
+  }
+  return null;
+}
+
+const card = document.getElementById("card");
+const inp  = document.getElementById("code");
+const btn  = document.getElementById("go");
+const err  = document.getElementById("err");
+
+function showErr(m){ err.textContent = m; }
+
+async function enter(){
+  const code = (inp.value||"").trim();
+  if(!code){ showErr("请输入访问码"); return; }
+  btn.disabled = true; showErr("校验中…");
+  const v = await verify(code);
+  btn.disabled = false;
+  if(!v){ showErr("访问码不正确，请向老师索取"); return; }
+
+  // 管理员：显示全部学员菜单
+  if(v.role === "teacher"){
+    sessionStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
+    showAdminMenu();
+    return;
+  }
+  // 学员：按访问码路由到对应二级页
+  const name = matchStudent(v);
+  if(!name){ showErr("访问码与本站不匹配，请使用您本人的访问码"); return; }
+  sessionStorage.setItem("qx_verified", JSON.stringify({code:code, student_id:v.student_id, role:v.role, name:v.name}));
+  window.location.href = STUDENT_PAGES[name];
+}
+
+function showAdminMenu(){
+  let html = '<div class="brand">芊芯教育规划</div>'
+    + '<div class="title">管理员视图</div>'
+    + '<div class="sub">您拥有全部学员的最高权限</div>'
+    + '<div class="menu">';
+  for(var name in STUDENT_PAGES){
+    html += '<a href="'+STUDENT_PAGES[name]+'">'+name+' 的规划台<span class="tag">点击进入查看</span></a>';
+  }
+  html += '</div><div class="footer">访问码由老师本人保管</div>';
+  card.innerHTML = html;
+}
+
+btn.addEventListener("click", enter);
+inp.addEventListener("keydown", function(e){ if(e.key === "Enter") enter(); });
+inp.focus();
+</script>
+</body>
+</html>
