@@ -127,7 +127,7 @@
   <div style="background:#fff;border-radius:14px;padding:26px 22px;width:300px;max-width:88vw;text-align:center;">
     <div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:4px;">学员规划平台</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">请输入访问码进入</div>
-    <input id="codeInput" type="text" autocomplete="off" placeholder="访问码" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;box-sizing:border-box;font-family:inherit;">
+    <input id="codeInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="访问码" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;box-sizing:border-box;font-family:inherit;">
     <button id="codeBtn" class="btn" style="margin-top:12px;">进入</button>
     <div id="codeErr" style="color:var(--red);font-size:12px;height:16px;margin-top:8px;"></div>
     <div style="font-size:11px;color:var(--muted);margin-top:10px;">访问码由老师提供</div>
@@ -324,13 +324,13 @@ function load(){
 }
 function save(d){
   const sid = (me && me.student_id) ? me.student_id : "anon";
-  localStorage.setItem(KEY+"_"+sid, JSON.stringify(d));
+  try{ localStorage.setItem(KEY+"_"+sid, JSON.stringify(d)); }catch(e){ /* 无痕/禁用 storage 时忽略，不影响使用 */ }
 }
 
 // 会话（登录态）：{code, student_id, role, name, mode}
 const SKEY = "wb_session_wangwenjia_v1";
 function getSession(){ try{ return JSON.parse(localStorage.getItem(SKEY)); }catch(e){ return null; } }
-function setSession(s){ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); }
+function setSession(s){ try{ if(s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); }catch(e){ /* 无痕/禁用 storage 时忽略 */ } }
 
 // 云端共享（升级版：读走 get_my_data，写走 save_wangwenjia，均按访问码服务端隔离）
 const SUPABASE_URL = "https://rrxdochtsqxrkptiqsmr.supabase.co";
